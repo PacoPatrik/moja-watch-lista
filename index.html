@@ -8,7 +8,10 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 
-    <!-- Naš vlastiti CSS (mora ići NAKON Bootstrapa da ga možemo pregasiti) -->
+    <!-- Dodaj Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <!-- Naš vlastiti CSS (mora ići NAKON Bootstrapa) -->
     <link rel="stylesheet" href="style.css">
 
     <title>Moja Watch Lista</title>
@@ -16,112 +19,111 @@
   <body>
     <div class="container mt-4">
 
-      <!-- Sekcija za Autentifikaciju (Login/Register) - Prikazuje se kad korisnik NIJE prijavljen -->
+      <!-- Sekcija za Autentifikaciju -->
       <div id="auth-section">
-        <h2 class="mb-3">Prijava / Registracija</h2>
-        <div id="auth-error" class="alert alert-danger d-none" role="alert">
-          <!-- Poruke o greškama idu ovdje -->
-        </div>
-        <form id="auth-form">
-          <div class="mb-3">
-            <label for="emailInput" class="form-label">Email adresa</label>
-            <input type="email" class="form-control" id="emailInput" required>
-          </div>
-          <div class="mb-3">
-            <label for="passwordInput" class="form-label">Lozinka</label>
-            <input type="password" class="form-control" id="passwordInput" required>
-          </div>
-          <button type="button" class="btn btn-primary" id="loginButton">Prijava</button>
-          <button type="button" class="btn btn-secondary" id="registerButton">Registracija</button>
-        </form>
-      </div>
+        <div class="row justify-content-center">
+          <div class="col-md-6 col-lg-5">
+             <h2 class="mb-3 text-center">Prijava / Registracija</h2>
+             <div id="auth-error" class="alert alert-danger d-none" role="alert"></div>
+             <form id="auth-form">
+               <div class="mb-3">
+                 <label for="emailInput" class="form-label">Email adresa</label>
+                 <input type="email" class="form-control" id="emailInput" required>
+               </div>
+               <div class="mb-3">
+                 <label for="passwordInput" class="form-label">Lozinka</label>
+                 <input type="password" class="form-control" id="passwordInput" required>
+               </div>
+               <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                  <button type="button" class="btn btn-primary" id="loginButton">Prijava</button>
+                  <button type="button" class="btn btn-secondary" id="registerButton">Registracija</button>
+                </div>
+             </form>
+           </div>
+         </div>
+       </div>
 
-      <!-- Sekcija sa Sadržajem - Prikazuje se kad je korisnik PRIJAVLJEN -->
-      <div id="content-section" class="d-none"> <!-- d-none klasa sakriva ovo inicijalno -->
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <div>
-            Dobrodošao/la, <span id="userEmail"></span>!
+      <!-- Sekcija sa Sadržajem -->
+      <div id="content-section" class="d-none">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+          <div class="text-truncate">
+            Dobrodošao/la, <span id="userEmail" class="fw-bold"></span>!
           </div>
-          <button type="button" class="btn btn-danger" id="logoutButton">Odjava</button>
+          <div class="d-flex align-items-center">
+            <button type="button" class="btn btn-outline-secondary btn-sm me-2 rounded-circle p-1" id="theme-toggle-button" title="Promijeni temu" style="width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center;">
+               <i class="bi bi-moon-stars-fill"></i>
+               <span class="visually-hidden">Promijeni temu</span>
+            </button>
+            <button type="button" class="btn btn-danger btn-sm" id="logoutButton">
+              <i class="bi bi-box-arrow-right me-1"></i>Odjava
+            </button>
+          </div>
         </div>
 
         <hr>
 
         <!-- Forma za dodavanje novog unosa -->
-        <h3>Dodaj novi unos</h3>
+        <h3 class="h4 mb-3">Dodaj novi unos</h3>
         <form id="add-item-form" class="row g-3 mb-4 align-items-end">
-           <div class="col-md-4">
+           <div class="col-md-4 col-sm-6">
               <label for="itemTitle" class="form-label">Naslov</label>
-              <input type="text" class="form-control" id="itemTitle" required>
+              <input type="text" class="form-control form-control-sm" id="itemTitle" required>
            </div>
-           <div class="col-md-3">
+           <div class="col-md-3 col-sm-6">
               <label for="itemType" class="form-label">Tip</label>
-              <select class="form-select" id="itemType" required>
+              <select class="form-select form-select-sm" id="itemType" required>
                 <option selected disabled value="">Odaberi...</option>
                 <option>Anime</option>
                 <option>Film</option>
                 <option>Serija</option>
               </select>
            </div>
-           <!-- Polja za Sezonu/Epizodu (prikazuju se samo za Anime/Serije) -->
-           <div class="col-md-2" id="season-episode-fields" style="display: none;">
+           <div class="col-md-2 col-sm-4" id="season-episode-fields" style="display: none;">
                <label for="itemSeason" class="form-label">Sezona</label>
-               <input type="number" class="form-control" id="itemSeason" min="1" value="1">
+               <input type="number" class="form-control form-control-sm" id="itemSeason" min="1" value="1">
            </div>
-           <div class="col-md-2" id="season-episode-fields-ep" style="display: none;">
+           <div class="col-md-2 col-sm-4" id="season-episode-fields-ep" style="display: none;">
                 <label for="itemEpisode" class="form-label">Epizoda</label>
-                <input type="number" class="form-control" id="itemEpisode" min="1" value="1">
+                <input type="number" class="form-control form-control-sm" id="itemEpisode" min="1" value="1">
             </div>
-
-           <!-- =========================================== -->
-           <!-- == OVDJE SU DODANA POLJA ZA POGLEDANO/OCJENA == -->
-           <!-- =========================================== -->
-           <!-- Polje za Pogledano -->
-             <!-- Polje za Pogledano -->
-             <div class="form-check mb-3"> <!-- mb-3 za poravnanje -->
-              <input class="form-check-input" type="checkbox" value="" id="itemWatched">
-              <label class="form-check-label" for="itemWatched">
-                Pogledano?
-              </label>
-            </div>
-
-           <!-- Polje za Ocjenu (inicijalno skriveno) -->
-           <div class="col-md-2" id="rating-field" style="display: none;">
-             <label for="itemRating" class="form-label">Ocjena (1-10)</label>
-             <input type="number" class="form-control" id="itemRating" min="1" max="10">
+           <div class="col-md-auto col-sm-4 d-flex align-items-end">
+             <div class="form-check mb-1">
+               <input class="form-check-input" type="checkbox" value="" id="itemWatched">
+               <label class="form-check-label" for="itemWatched">
+                 Pogledano?
+               </label>
+             </div>
            </div>
-           <!-- =========================================== -->
-           <!-- =========== KRAJ DODANIH POLJA ============ -->
-           <!-- =========================================== -->
-
-           <div class="col-auto">
-              <button type="submit" class="btn btn-success">Dodaj</button>
+           <div class="col-md-2 col-sm-4" id="rating-field" style="display: none;">
+             <label for="itemRating" class="form-label">Ocjena</label>
+             <input type="number" class="form-control form-control-sm" id="itemRating" min="1" max="10" placeholder="1-10">
            </div>
-        </form> <!-- Kraj forme "add-item-form" -->
+           <div class="col-auto ms-md-auto">
+              <button type="submit" class="btn btn-success btn-sm">
+                 <i class="bi bi-plus-circle-fill me-1"></i>Dodaj
+              </button>
+           </div>
+        </form>
 
         <hr>
 
         <!-- Lista Unosa -->
-        <h3>Moja Watch Lista</h3>
+        <h3 class="h4 mb-3">Moja Watch Lista</h3>
         <div id="watchlist-items" class="list-group">
-          <!-- Unosi će se dinamički dodavati ovdje pomoću JavaScripta -->
-          <p id="loading-indicator">Učitavanje...</p> <!-- Poruka dok se učitava -->
+          <p id="loading-indicator" class="text-center text-muted mt-3">Učitavanje...</p>
         </div>
 
       </div><!-- Kraj content-section -->
 
     </div> <!-- Kraj container -->
 
-    <!-- Ovdje ostaju tvoji script tagovi za Bootstrap i Firebase -->
     <!-- Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
-    <!-- Firebase App (uvijek potreban) -->
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <!-- Firebase Authentication -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-    <!-- Firebase Firestore -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-    <!-- Naš vlastiti JavaScript -->
-    <script src="script.js"></script> <!-- Uvjerite se da ste i script.js ažurirali! -->
+    <!-- Naš JavaScript -->
+    <script src="script.js"></script>
   </body>
 </html>

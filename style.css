@@ -1,8 +1,94 @@
-#content-section {
-    /* display: none; */ /* Bootstrap klasa d-none bi trebala ovo raditi, ali neka stoji zakomentirano za svaki slučaj */
+/* Globalna tranzicija za glađe efekte */
+body, .btn, .list-group-item, .form-control, .form-select {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, opacity 0.3s ease, box-shadow 0.15s ease-in-out;
 }
 
-/* Opcionalno: Malo razmaka između itema u listi */
+/* Osnovni stilovi tijela */
+body {
+    min-height: 100vh;
+}
+
+/* Prilagodba kontejnera */
+.container {
+    max-width: 960px;
+}
+
+/* Stilovi za formu */
+#add-item-form label {
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+/* Stil za prikaz itema u listi */
 #watchlist-items .list-group-item {
-    margin-bottom: 10px;
+    border-width: 1px;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+}
+
+/* Stil za pogledane iteme */
+.item-watched {
+    opacity: 0.6;
+    background-color: var(--bs-secondary-bg);
+}
+
+.item-watched .fw-bold {
+    text-decoration: line-through wavy rgba(var(--bs-emphasis-color-rgb), 0.6);
+    font-weight: normal !important;
+    color: var(--bs-secondary-color);
+}
+
+/* Gumbi s ikonama u listi */
+#watchlist-items .btn {
+    padding: 0.2rem 0.4rem;
+    line-height: 1;
+    transition: transform 0.15s ease-out, opacity 0.15s ease-out;
+}
+#watchlist-items .btn:hover {
+    opacity: 1;
+    transform: scale(1.15);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+}
+#watchlist-items .btn i {
+    vertical-align: -0.125em;
+}
+
+/* Gumb za spremanje ocjene - prilagodba */
+.save-rating-btn i {
+    font-size: 0.9em;
+}
+
+/* Input za ocjenu */
+.rating-input {
+    text-align: center;
+}
+.rating-input::placeholder {
+    font-size: 0.8em;
+}
+
+/* Dark Mode - specifični stilovi */
+[data-bs-theme="dark"] .item-watched {
+    opacity: 0.55;
+    background-color: rgba(var(--bs-secondary-rgb), 0.2);
+}
+
+[data-bs-theme="dark"] .item-watched .fw-bold {
+    text-decoration-color: rgba(var(--bs-light-rgb), 0.5);
+    color: var(--bs-secondary-color);
+}
+
+[data-bs-theme="dark"] .badge.bg-info {
+     background-color: var(--bs-teal) !important;
+     color: var(--bs-dark) !important;
+}
+
+/* Sakrij defaultnu strelicu na number inputu (Chrome/Safari) */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+/* Sakrij defaultnu strelicu na number inputu (Firefox) */
+input[type=number] {
+  -moz-appearance: textfield;
 }
