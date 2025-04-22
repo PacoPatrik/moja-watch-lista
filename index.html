@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="hr">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+
+    <!-- Naš vlastiti CSS (mora ići NAKON Bootstrapa da ga možemo pregasiti) -->
+    <link rel="stylesheet" href="style.css">
+
+    <title>Moja Watch Lista</title>
+  </head>
+  <body>
+    <div class="container mt-4">
+
+      <!-- Sekcija za Autentifikaciju (Login/Register) - Prikazuje se kad korisnik NIJE prijavljen -->
+      <div id="auth-section">
+        <h2 class="mb-3">Prijava / Registracija</h2>
+        <div id="auth-error" class="alert alert-danger d-none" role="alert">
+          <!-- Poruke o greškama idu ovdje -->
+        </div>
+        <form id="auth-form">
+          <div class="mb-3">
+            <label for="emailInput" class="form-label">Email adresa</label>
+            <input type="email" class="form-control" id="emailInput" required>
+          </div>
+          <div class="mb-3">
+            <label for="passwordInput" class="form-label">Lozinka</label>
+            <input type="password" class="form-control" id="passwordInput" required>
+          </div>
+          <button type="button" class="btn btn-primary" id="loginButton">Prijava</button>
+          <button type="button" class="btn btn-secondary" id="registerButton">Registracija</button>
+        </form>
+      </div>
+
+      <!-- Sekcija sa Sadržajem - Prikazuje se kad je korisnik PRIJAVLJEN -->
+      <div id="content-section" class="d-none"> <!-- d-none klasa sakriva ovo inicijalno -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            Dobrodošao/la, <span id="userEmail"></span>!
+          </div>
+          <button type="button" class="btn btn-danger" id="logoutButton">Odjava</button>
+        </div>
+
+        <hr>
+
+        <!-- Forma za dodavanje novog unosa -->
+        <h3>Dodaj novi unos</h3>
+        <form id="add-item-form" class="row g-3 mb-4 align-items-end">
+           <div class="col-md-4">
+              <label for="itemTitle" class="form-label">Naslov</label>
+              <input type="text" class="form-control" id="itemTitle" required>
+           </div>
+           <div class="col-md-3">
+              <label for="itemType" class="form-label">Tip</label>
+              <select class="form-select" id="itemType" required>
+                <option selected disabled value="">Odaberi...</option>
+                <option>Anime</option>
+                <option>Film</option>
+                <option>Serija</option>
+              </select>
+           </div>
+           <!-- Polja za Sezonu/Epizodu (prikazuju se samo za Anime/Serije) -->
+           <div class="col-md-2" id="season-episode-fields" style="display: none;">
+               <label for="itemSeason" class="form-label">Sezona</label>
+               <input type="number" class="form-control" id="itemSeason" min="1" value="1">
+           </div>
+           <div class="col-md-2" id="season-episode-fields-ep" style="display: none;">
+                <label for="itemEpisode" class="form-label">Epizoda</label>
+                <input type="number" class="form-control" id="itemEpisode" min="1" value="1">
+            </div>
+
+           <!-- =========================================== -->
+           <!-- == OVDJE SU DODANA POLJA ZA POGLEDANO/OCJENA == -->
+           <!-- =========================================== -->
+           <!-- Polje za Pogledano -->
+             <!-- Polje za Pogledano -->
+             <div class="form-check mb-3"> <!-- mb-3 za poravnanje -->
+              <input class="form-check-input" type="checkbox" value="" id="itemWatched">
+              <label class="form-check-label" for="itemWatched">
+                Pogledano?
+              </label>
+            </div>
+
+           <!-- Polje za Ocjenu (inicijalno skriveno) -->
+           <div class="col-md-2" id="rating-field" style="display: none;">
+             <label for="itemRating" class="form-label">Ocjena (1-10)</label>
+             <input type="number" class="form-control" id="itemRating" min="1" max="10">
+           </div>
+           <!-- =========================================== -->
+           <!-- =========== KRAJ DODANIH POLJA ============ -->
+           <!-- =========================================== -->
+
+           <div class="col-auto">
+              <button type="submit" class="btn btn-success">Dodaj</button>
+           </div>
+        </form> <!-- Kraj forme "add-item-form" -->
+
+        <hr>
+
+        <!-- Lista Unosa -->
+        <h3>Moja Watch Lista</h3>
+        <div id="watchlist-items" class="list-group">
+          <!-- Unosi će se dinamički dodavati ovdje pomoću JavaScripta -->
+          <p id="loading-indicator">Učitavanje...</p> <!-- Poruka dok se učitava -->
+        </div>
+
+      </div><!-- Kraj content-section -->
+
+    </div> <!-- Kraj container -->
+
+    <!-- Ovdje ostaju tvoji script tagovi za Bootstrap i Firebase -->
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <!-- Firebase App (uvijek potreban) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <!-- Firebase Authentication -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <!-- Firebase Firestore -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <!-- Naš vlastiti JavaScript -->
+    <script src="script.js"></script> <!-- Uvjerite se da ste i script.js ažurirali! -->
+  </body>
+</html>

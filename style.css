@@ -1,0 +1,8 @@
+#content-section {
+    /* display: none; */ /* Bootstrap klasa d-none bi trebala ovo raditi, ali neka stoji zakomentirano za svaki slučaj */
+}
+
+/* Opcionalno: Malo razmaka između itema u listi */
+#watchlist-items .list-group-item {
+    margin-bottom: 10px;
+}
