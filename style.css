@@ -1,76 +1,68 @@
-/* Globalna tranzicija */
-body, .btn, .list-group-item, .form-control, .form-select, .modal-content, .card {
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, opacity 0.3s ease, box-shadow 0.15s ease-in-out;
-}
+    /* Globalna tranzicija */
+    body, .btn, .list-group-item, .form-control, .form-select, .modal-content, .card {
+        transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, opacity 0.3s ease, box-shadow 0.15s ease-in-out;
+    }
 
-/* Osnovni stilovi tijela */
-body { min-height: 100vh; }
+    /* Osnovni stilovi tijela */
+    body { min-height: 100vh; }
 
-/* Stilovi za Auth sekciju */
-#auth-section {
-    background: linear-gradient(rgba(var(--bs-body-bg-rgb), 0.8), rgba(var(--bs-body-bg-rgb), 1)), url('https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8bW92aWV8fHx8fHwxNjE4MjYwMDI0&ixlib=rb-1.2.1&q=80&utm_campaign=api-credit&utm_medium=referral&utm_source=unsplash_source&w=1080') no-repeat center center;
-    background-size: cover;
-}
-.auth-container {
-    max-width: 450px; width: 90%;
-    background-color: rgba(var(--bs-body-bg-rgb), 0.9);
-    backdrop-filter: blur(5px);
-    border: 1px solid rgba(var(--bs-emphasis-color-rgb), 0.1);
-}
-.site-title { font-weight: 300; }
-.auth-instructions small { color: var(--bs-secondary-color); }
+    /* Stilovi za Auth sekciju */
+    #auth-section {
+        background: linear-gradient(rgba(var(--bs-body-bg-rgb), 0.8), rgba(var(--bs-body-bg-rgb), 1)), url('https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8bW92aWV8fHx8fHwxNjE4MjYwMDI0&ixlib=rb-1.2.1&q=80&utm_campaign=api-credit&utm_medium=referral&utm_source=unsplash_source&w=1080') no-repeat center center;
+        background-size: cover;
+    }
+    .auth-container {
+        max-width: 450px; width: 90%;
+        background-color: rgba(var(--bs-body-bg-rgb), 0.9);
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(var(--bs-emphasis-color-rgb), 0.1);
+    }
+    .site-title { font-weight: 300; }
+    .auth-instructions small { color: var(--bs-secondary-color); }
 
-/* Prilagodba kontejnera za sadržaj */
-#content-section .container { max-width: 1140px; }
+    /* Prilagodba kontejnera za sadržaj */
+    #content-section .container { max-width: 1140px; }
 
-/* Lista - Grid */
-#watchlist-items.row { /* Osiguraj da se primjenjuje kad je grid */
-    /* Nema potrebe za dodatnim stilovima ovdje ako g-4 radi razmak */
-}
+    /* Lista - Grid */
+    #watchlist-items.row { /* Osiguraj da se primjenjuje kad je grid */ }
 
+    /* Stil kartice */
+    .card { border: 1px solid var(--bs-border-color-translucent); }
+    .card-title { font-size: 1.1rem; display: inline-block; }
+    .card-body { padding: 1rem; }
 
-/* Stil kartice */
-.card { border: 1px solid var(--bs-border-color-translucent); }
-.card-title { font-size: 1.1rem; display: inline-block; /* Da bi margina radila */}
-.card-body { padding: 1rem; }
+    /* Stil za pogledane kartice */
+    .item-watched { opacity: 0.7; }
+    .item-watched .item-title { text-decoration: line-through; font-weight: normal !important; }
+    .item-watched .season-episode-controls { display: none !important; }
 
-/* Stil za pogledane kartice */
-.item-watched {
-    opacity: 0.7;
-}
-.item-watched .item-title {
-    text-decoration: line-through; /* Jednostavnije precrtavanje */
-    font-weight: normal !important;
-}
-.item-watched .season-episode-controls { display: none !important; }
+    /* Gumbi s ikonama unutar kartice */
+    .item-actions .btn { padding: 0.2rem 0.4rem; line-height: 1; transition: transform 0.15s ease-out, opacity 0.15s ease-out; }
+    .item-actions .btn:hover { opacity: 1; transform: scale(1.15); }
+    .item-actions .btn i { vertical-align: -0.125em; }
 
-/* Gumbi s ikonama unutar kartice */
-.item-actions .btn { padding: 0.2rem 0.4rem; line-height: 1; transition: transform 0.15s ease-out, opacity 0.15s ease-out; }
-.item-actions .btn:hover { opacity: 1; transform: scale(1.15); }
-.item-actions .btn i { vertical-align: -0.125em; }
+    /* Inputi za ocjenu, sezonu, epizodu */
+    .rating-input, .season-input, .episode-input { text-align: center; }
+    .rating-input::placeholder { font-size: 0.8em; }
+    .save-rating-btn i, .save-progress-btn i { font-size: 0.9em; }
 
-/* Inputi za ocjenu, sezonu, epizodu */
-.rating-input, .season-input, .episode-input { text-align: center; }
-.rating-input::placeholder { font-size: 0.8em; }
-.save-rating-btn i, .save-progress-btn i { font-size: 0.9em; }
+    /* Ikona zvjezdice */
+    .favorite-icon-placeholder i { font-size: 1.1rem; transition: color 0.2s ease, transform 0.2s ease; }
+    .favorite-icon-placeholder i:hover { transform: scale(1.2); color: var(--bs-warning); }
 
-/* Ikona zvjezdice */
-.favorite-icon-placeholder i { font-size: 1.1rem; transition: color 0.2s ease, transform 0.2s ease; }
-.favorite-icon-placeholder i:hover { transform: scale(1.2); color: var(--bs-warning); }
+    /* Kontrole za filtere */
+    #filter-controls .btn { font-size: 0.85rem; padding: 0.3rem 0.6rem; }
+    #filter-controls .btn i { vertical-align: -0.1em; }
 
-/* Kontrole za filtere */
-#filter-controls .btn { font-size: 0.85rem; padding: 0.3rem 0.6rem; }
-#filter-controls .btn i { vertical-align: -0.1em; }
+    /* Gumb za promjenu teme */
+    .theme-button { width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; }
 
-/* Gumb za promjenu teme */
-.theme-button { width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; }
+    /* Dark Mode stilovi */
+    [data-bs-theme="dark"] .auth-container { border-color: rgba(255, 255, 255, 0.15); }
+    [data-bs-theme="dark"] .item-watched { opacity: 0.65; }
+    [data-bs-theme="dark"] .item-watched .item-title { text-decoration-color: rgba(var(--bs-light-rgb), 0.5); }
+    [data-bs-theme="dark"] .badge.bg-info { background-color: var(--bs-info-bg-subtle) !important; color: var(--bs-info-text-emphasis) !important; border: 1px solid var(--bs-info-border-subtle); }
 
-/* Dark Mode stilovi */
-[data-bs-theme="dark"] .auth-container { border-color: rgba(255, 255, 255, 0.15); }
-[data-bs-theme="dark"] .item-watched { opacity: 0.65; }
-[data-bs-theme="dark"] .item-watched .item-title { text-decoration-color: rgba(var(--bs-light-rgb), 0.5); }
-[data-bs-theme="dark"] .badge.bg-info { background-color: var(--bs-info-bg-subtle) !important; color: var(--bs-info-text-emphasis) !important; border: 1px solid var(--bs-info-border-subtle); }
-
-/* Sakrij strelice na number inputima */
-input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-input[type=number] { -moz-appearance: textfield; }
+    /* Sakrij strelice na number inputima */
+    input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type=number] { -moz-appearance: textfield; }
