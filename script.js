@@ -36,6 +36,21 @@ let unsubscribeFromWatchlist = null; let currentUserId = null; let allUserItems 
 const applyTheme = (theme) => { document.documentElement.setAttribute('data-bs-theme', theme); if (themeToggleIcon) themeToggleIcon.className = theme === 'dark' ? 'bi bi-brightness-high-fill' : 'bi bi-moon-stars-fill'; };
 const toggleTheme = () => { const newTheme = document.documentElement.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark'; localStorage.setItem('theme', newTheme); applyTheme(newTheme); };
 const loadTheme = () => { applyTheme(localStorage.getItem('theme') || 'light'); };
+// === REGISTRACIJA SERVICE WORKERA ===
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .then(registration => {
+          console.log('ServiceWorker registriran uspješno, opseg:', registration.scope);
+        })
+        .catch(error => {
+          console.log('ServiceWorker registracija neuspješna:', error);
+        });
+    });
+  } else {
+      console.log("Service Worker nije podržan u ovom pregledniku.");
+  }
+  // === KRAJ REGISTRACIJE SW ===
 
 // --- Listener za promjenu statusa prijave ---
 auth.onAuthStateChanged(user => {
