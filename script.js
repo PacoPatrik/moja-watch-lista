@@ -1,6 +1,6 @@
 // ==========================================================================
-// POČETAK script.js KODA - Verzija s KARTICAMA V2 i Autocomplete (Film+Anime)
-// Kompletna i Ispravljena Verzija
+// POČETAK script.js KODA - Verzija s KARTICAMA V2 i Autocomplete (Film+Anime+Serija)
+// Kompletna Verzija v3
 // ==========================================================================
 
 const firebaseConfig = {
@@ -35,7 +35,6 @@ const db = firebase.firestore();
 // === Dohvati elemente ===
 function getEl(id) {
     const el = document.getElementById(id);
-    // Nema potrebe za upozorenjem ako element ne postoji u DOM-u
     return el;
 }
 // Auth
@@ -51,7 +50,7 @@ const modalTitle = getEl('modalItemTitle'), modalType = getEl('modalItemType'), 
 const titleSuggestionsDiv = getEl('title-suggestions');
 const modalTmdbIdInput = getEl('modalTmdbId');
 const modalMalIdInput = getEl('modalMalId');
-const modalImageUrlInput = getEl('modalImageUrl'); // Dohvat novog inputa za URL slike
+const modalImageUrlInput = getEl('modalImageUrl'); // Dohvat inputa za URL slike
 // === KRAJ DOHVAĆANJA ELEMENATA ===
 
 // --- Globalne varijable ---
@@ -135,7 +134,6 @@ const handleAuthAction = async (actionFunc) => {
     if (actionFunc === auth.createUserWithEmailAndPassword && p.length < 6) { showAuthError("Lozinka min 6 znakova."); return; }
     try {
         await actionFunc(e, p);
-         // Uspjeh se obrađuje u onAuthStateChanged
     } catch (err) {
         console.error("Auth Err:", err.code, err.message);
         let msg = "Greška.";
@@ -153,9 +151,7 @@ const handleLogout = () => { auth.signOut().catch(e => console.error("Logout err
 // --- SPREMANJE UNOSA ---
 const handleSaveItem = async (event) => {
     event.preventDefault();
-    if (!modalTitle || !modalType || !modalTmdbIdInput || !modalMalIdInput || !modalImageUrlInput) {
-        console.error("Ključni modalni elementi nedostaju."); alert("Došlo je do greške. Osvježite stranicu."); return;
-    }
+    if (!modalTitle || !modalType || !modalTmdbIdInput || !modalMalIdInput || !modalImageUrlInput) { console.error("Ključni modalni elementi nedostaju."); alert("Došlo je do greške. Osvježite stranicu."); return; }
 
     const title = modalTitle.value.trim();
     const type = modalItemType.value;
@@ -180,10 +176,10 @@ const handleSaveItem = async (event) => {
         title, type, watched, favorite,
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
         rating: watched && rating ? rNum : null,
-        tmdbId: type === 'Film' ? tmdbIdValue : null,
-        malId: type === 'Anime' ? malIdValue : null,
-        tmdbPosterPath: null, // Inicijalno null
-        sourceImageUrl: null // Novi field za spremanje Jikan URL-a ili drugog izvora
+        tmdbId: (type === 'Film' || type === 'Serija') ? tmdbIdValue : null, // TMDb ID za Film i Seriju
+        malId: type === 'Anime' ? malIdValue : null,                   // MAL ID za Anime
+        tmdbPosterPath: null,                                          // Za TMDb postere
+        sourceImageUrl: type === 'Anime' ? imageUrlValue : null        // Za spremljene URL-ove (npr. Jikan)
     };
 
     if (type === 'Anime' || type === 'Serija') {
@@ -191,22 +187,20 @@ const handleSaveItem = async (event) => {
         newItem.episode = parseInt(episode) || 1;
     }
 
-    // Dohvati TMDb poster path ako je Film
-    if (newItem.type === 'Film' && newItem.tmdbId && TMDB_API_KEY && TMDB_API_KEY !== 'TVOJ_STVARNI_API_KLJUČ_V3') {
-        const detailsUrl = `https://api.themoviedb.org/3/movie/${newItem.tmdbId}?api_key=${TMDB_API_KEY}&language=hr-HR`;
+    // --- Dohvati TMDb poster path ako je Film ili Serija i ima TMDb ID ---
+    let finalPosterPath = null;
+    if ((newItem.type === 'Film' || newItem.type === 'Serija') && newItem.tmdbId && TMDB_API_KEY && TMDB_API_KEY !== 'TVOJ_STVARNI_API_KLJUČ_V3') {
+        const endpointPath = newItem.type === 'Film' ? 'movie' : 'tv'; // Odaberi pravi endpoint
+        const detailsUrl = `https://api.themoviedb.org/3/${endpointPath}/${newItem.tmdbId}?api_key=${TMDB_API_KEY}&language=hr-HR`;
         try {
-            console.log(`Dohvaćam TMDb detalje za poster filma: ${newItem.tmdbId}`);
+            console.log(`Dohvaćam TMDb detalje za poster (${newItem.type}): ${newItem.tmdbId}`);
             const r = await fetch(detailsUrl);
-            if (r.ok) { const d = await r.json(); newItem.tmdbPosterPath = d.poster_path; console.log("Pronađen TMDb poster path:", newItem.tmdbPosterPath); }
-            else { console.warn(`TMDb detalji nisu pronađeni ili greška: ${r.status}`); }
-        } catch (e) { console.error("Greška pri dohvaćanju TMDb detalja:", e); }
+            if (r.ok) { const d = await r.json(); finalPosterPath = d.poster_path; console.log(`Pronađen TMDb poster path za ${newItem.type}:`, finalPosterPath); }
+            else { console.warn(`TMDb detalji za ${newItem.type} nisu pronađeni ili greška: ${r.status}`); }
+        } catch (e) { console.error(`Greška pri dohvaćanju TMDb detalja za ${newItem.type}:`, e); }
     }
+    newItem.tmdbPosterPath = finalPosterPath; // Spremi putanju (može biti null)
 
-    // Ako je Anime, spremi URL slike iz skrivenog polja
-    if (newItem.type === 'Anime' && imageUrlValue) {
-        newItem.sourceImageUrl = imageUrlValue;
-        console.log("Spremam URL slike iz izvora (Jikan):", newItem.sourceImageUrl);
-    }
 
     // Spremi u Firestore
     console.log('Spremam u Firestore:', newItem);
@@ -278,7 +272,12 @@ const displayItems = (itemsToDisplay) => {
             const posterUrl = `${TMDB_IMAGE_BASE_URL}${POSTER_SIZE}${item.tmdbPosterPath}`;
             backgroundStyle = `background-image: url('${posterUrl}');`;
             overlayClass = 'card-overlay-blur';
-        } else if (item.type === 'Anime' && item.sourceImageUrl) {
+        } else if (item.type === 'Serija' && item.tmdbPosterPath) { // Koristi isti tmdbPosterPath i za serije
+             const posterUrl = `${TMDB_IMAGE_BASE_URL}${POSTER_SIZE}${item.tmdbPosterPath}`;
+            backgroundStyle = `background-image: url('${posterUrl}');`;
+            overlayClass = 'card-overlay-blur';
+        }
+        else if (item.type === 'Anime' && item.sourceImageUrl) {
             backgroundStyle = `background-image: url('${item.sourceImageUrl}');`;
             overlayClass = 'card-overlay-blur';
         }
@@ -312,9 +311,10 @@ const showFeedback = (msg, type = 'info') => { console.log(`FEEDBACK (${type}): 
 
 // --- AUTOCOMPLETE FUNKCIJE ---
 const searchAnime = async (query) => { if (!query || query.length < 3) return []; const encodedQuery = encodeURIComponent(query); const url = `https://api.jikan.moe/v4/anime?q=${encodedQuery}&sfw&limit=5`; console.log(`Jikan Search URL: ${url}`); try { const response = await fetch(url); if (!response.ok) { console.error(`Jikan API greška: ${response.status} ${response.statusText}`); if (response.status === 429) console.warn("Jikan rate limit premašen!"); return []; } const data = await response.json(); return data.data || []; } catch (error) { console.error("Greška pri dohvaćanju Jikan podataka:", error); return []; } };
-const fetchTMDbSuggestions = async (query) => { if (!TMDB_API_KEY || TMDB_API_KEY === 'TVOJ_STVARNI_API_KLJUČ_V3') { console.warn("TMDb API ključ nije postavljen."); return []; } const url = `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&language=hr-HR&include_adult=false&page=1`; console.log(`TMDb Search URL: ${url}`); try { const r = await fetch(url); if (!r.ok) { console.error(`TMDb API greška: ${r.status} ${r.statusText}`); return []; } const d = await r.json(); return d.results || []; } catch (e) { console.error("TMDb AC greška:", e); return []; } };
-const fetchAndShowSuggestions = async (q) => { if (!q || q.length < 3) { if (titleSuggestionsDiv) {titleSuggestionsDiv.innerHTML = ''; titleSuggestionsDiv.style.display = 'none';} return; } if (titleSuggestionsDiv) { titleSuggestionsDiv.innerHTML = '<div class="list-group-item text-muted small p-2">Tražim...</div>'; titleSuggestionsDiv.style.display = 'block'; } try { const [tmdbResults, jikanResults] = await Promise.all([ fetchTMDbSuggestions(q), searchAnime(q) ]); const combinedSuggestions = []; tmdbResults .filter(m => m.release_date) .slice(0, 5) .forEach(m => { combinedSuggestions.push({ idType: 'tmdbId', idValue: m.id, title: m.title, year: m.release_date.substring(0, 4), imageUrl: m.poster_path ? `${TMDB_IMAGE_BASE_URL}${POSTER_SIZE_THUMB}${m.poster_path}` : null, itemType: 'Film' }); }); jikanResults .slice(0, 5) .forEach(a => { let year = a.year || a.aired?.prop?.from?.year || null; combinedSuggestions.push({ idType: 'malId', idValue: a.mal_id, title: a.title, year: year, imageUrl: a.images?.jpg?.image_url || null, itemType: 'Anime' }); }); combinedSuggestions.sort((a, b) => a.title.localeCompare(b.title)); displaySuggestions(combinedSuggestions); } catch (error) { console.error("Greška pri dohvaćanju kombiniranih prijedloga:", error); if (titleSuggestionsDiv) { titleSuggestionsDiv.innerHTML = '<div class="list-group-item text-danger small p-2">Greška pri pretrazi.</div>'; titleSuggestionsDiv.style.display = 'block'; } } };
-const displaySuggestions = (suggestions) => { if (!titleSuggestionsDiv) return; titleSuggestionsDiv.innerHTML = ''; if (!suggestions || suggestions.length === 0) { titleSuggestionsDiv.innerHTML = '<div class="list-group-item text-muted small p-2">Nema rezultata.</div>'; titleSuggestionsDiv.style.display = 'block'; return; } suggestions.forEach(sug => { const itemElement = document.createElement('a'); itemElement.href = "#"; itemElement.className = 'list-group-item list-group-item-action suggestion-item p-2 d-flex align-items-center'; itemElement.dataset.idValue = sug.idValue; itemElement.dataset.idType = sug.idType; itemElement.dataset.title = sug.title; itemElement.dataset.itemType = sug.itemType; itemElement.dataset.imageUrl = sug.imageUrl || ''; const placeholderUrl = 'https://via.placeholder.com/40x60.png?text=N/A'; const thumbUrl = sug.imageUrl || placeholderUrl; const thumbHTML = `<img src="${thumbUrl}" alt="Thumb" class="me-2 suggestion-thumb" loading="lazy">`; const typeBadge = `<span class="badge rounded-pill ${sug.itemType === 'Film' ? 'bg-primary' : 'bg-info'} ms-1 suggestion-type-badge">${sug.itemType}</span>`; const textHTML = ` <div class="flex-grow-1" style="min-width: 0;"> <div class="d-flex w-100 justify-content-between"> <h6 class="mb-0 suggestion-title text-truncate">${sug.title}</h6> <small class="text-muted ms-1 flex-shrink-0">${sug.year ? `(${sug.year})` : ''}</small> </div> <small class="text-muted d-block">${typeBadge}</small> </div>`; itemElement.innerHTML = thumbHTML + textHTML; itemElement.addEventListener('click', (e) => { e.preventDefault(); const { idValue, idType, title, itemType, imageUrl } = e.currentTarget.dataset; console.log(`Odabrano: Tip=${itemType}, ID Tip=${idType}, ID Vrijednost=${idValue}, Naslov=${title}, Slika=${imageUrl}`); if (modalTitle) modalTitle.value = title; if (modalItemType) modalItemType.value = itemType; if (modalTmdbIdInput) modalTmdbIdInput.value = (idType === 'tmdbId' ? idValue : ''); if (modalMalIdInput) modalMalIdInput.value = (idType === 'malId' ? idValue : ''); if (modalImageUrlInput) modalImageUrlInput.value = imageUrl || ''; if (titleSuggestionsDiv) { titleSuggestionsDiv.innerHTML = ''; titleSuggestionsDiv.style.display = 'none'; } const showSE = itemType === 'Anime' || itemType === 'Serija'; if (modalSeasonFields) modalSeasonFields.style.display = showSE ? 'flex' : 'none'; if (!showSE) { if (modalSeason) modalSeason.value = '1'; if (modalEpisode) modalEpisode.value = '1'; } if (modalItemType) modalItemType.dispatchEvent(new Event('change')); }); titleSuggestionsDiv.appendChild(itemElement); }); titleSuggestionsDiv.style.display = 'block'; };
+const fetchTMDbSuggestions = async (query) => { if (!TMDB_API_KEY || TMDB_API_KEY === 'TVOJ_STVARNI_API_KLJUČ_V3') { console.warn("TMDb API ključ nije postavljen."); return []; } const url = `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&language=hr-HR&include_adult=false&page=1`; console.log(`TMDb Film Search URL: ${url}`); try { const r = await fetch(url); if (!r.ok) { console.error(`TMDb Film API greška: ${r.status} ${r.statusText}`); return []; } const d = await r.json(); return d.results || []; } catch (e) { console.error("TMDb Film AC greška:", e); return []; } };
+const fetchTMDbTvSuggestions = async (query) => { if (!TMDB_API_KEY || TMDB_API_KEY === 'TVOJ_STVARNI_API_KLJUČ_V3') { console.warn("TMDb API ključ nije postavljen."); return []; } const url = `https://api.themoviedb.org/3/search/tv?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&language=hr-HR&include_adult=false&page=1`; console.log(`TMDb TV Search URL: ${url}`); try { const r = await fetch(url); if (!r.ok) { console.error(`TMDb TV API greška: ${r.status} ${r.statusText}`); return []; } const d = await r.json(); return d.results || []; } catch (e) { console.error("TMDb TV AC greška:", e); return []; } };
+const fetchAndShowSuggestions = async (q) => { if (!q || q.length < 3) { if (titleSuggestionsDiv) {titleSuggestionsDiv.innerHTML = ''; titleSuggestionsDiv.style.display = 'none';} return; } if (titleSuggestionsDiv) { titleSuggestionsDiv.innerHTML = '<div class="list-group-item text-muted small p-2">Tražim...</div>'; titleSuggestionsDiv.style.display = 'block'; } try { const [tmdbMovieResults, jikanAnimeResults, tmdbTvResults] = await Promise.all([ fetchTMDbSuggestions(q), searchAnime(q), fetchTMDbTvSuggestions(q) ]); console.log("TMDb Film Results:", tmdbMovieResults); console.log("Jikan Anime Results:", jikanAnimeResults); console.log("TMDb TV Results:", tmdbTvResults); const combinedSuggestions = []; tmdbMovieResults .filter(m => m.release_date) .slice(0, 4) .forEach(m => { combinedSuggestions.push({ idType: 'tmdbId', idValue: m.id, title: m.title, year: m.release_date.substring(0, 4), imageUrl: m.poster_path ? `${TMDB_IMAGE_BASE_URL}${POSTER_SIZE_THUMB}${m.poster_path}` : null, itemType: 'Film' }); }); jikanAnimeResults .slice(0, 3) .forEach(a => { let year = a.year || a.aired?.prop?.from?.year || null; combinedSuggestions.push({ idType: 'malId', idValue: a.mal_id, title: a.title, year: year, imageUrl: a.images?.jpg?.image_url || null, itemType: 'Anime' }); }); tmdbTvResults .filter(tv => tv.first_air_date) .slice(0, 3) .forEach(tv => { combinedSuggestions.push({ idType: 'tmdbId', idValue: tv.id, title: tv.name, year: tv.first_air_date.substring(0, 4), imageUrl: tv.poster_path ? `${TMDB_IMAGE_BASE_URL}${POSTER_SIZE_THUMB}${tv.poster_path}` : null, itemType: 'Serija' }); }); combinedSuggestions.sort((a, b) => a.title.localeCompare(b.title)); displaySuggestions(combinedSuggestions); } catch (error) { console.error("Greška pri dohvaćanju kombiniranih prijedloga:", error); if (titleSuggestionsDiv) { titleSuggestionsDiv.innerHTML = '<div class="list-group-item text-danger small p-2">Greška pri pretrazi.</div>'; titleSuggestionsDiv.style.display = 'block'; } } };
+const displaySuggestions = (suggestions) => { if (!titleSuggestionsDiv) return; titleSuggestionsDiv.innerHTML = ''; if (!suggestions || suggestions.length === 0) { titleSuggestionsDiv.innerHTML = '<div class="list-group-item text-muted small p-2">Nema rezultata.</div>'; titleSuggestionsDiv.style.display = 'block'; return; } suggestions.forEach(sug => { const itemElement = document.createElement('a'); itemElement.href = "#"; itemElement.className = 'list-group-item list-group-item-action suggestion-item p-2 d-flex align-items-center'; itemElement.dataset.idValue = sug.idValue; itemElement.dataset.idType = sug.idType; itemElement.dataset.title = sug.title; itemElement.dataset.itemType = sug.itemType; itemElement.dataset.imageUrl = sug.imageUrl || ''; const placeholderUrl = 'https://via.placeholder.com/40x60.png?text=N/A'; const thumbUrl = sug.imageUrl || placeholderUrl; const thumbHTML = `<img src="${thumbUrl}" alt="Thumb" class="me-2 suggestion-thumb" loading="lazy">`; let badgeColor = 'bg-secondary'; if (sug.itemType === 'Film') badgeColor = 'bg-primary'; else if (sug.itemType === 'Anime') badgeColor = 'bg-info'; else if (sug.itemType === 'Serija') badgeColor = 'bg-success'; const typeBadge = `<span class="badge rounded-pill ${badgeColor} ms-1 suggestion-type-badge">${sug.itemType}</span>`; const textHTML = ` <div class="flex-grow-1" style="min-width: 0;"> <div class="d-flex w-100 justify-content-between"> <h6 class="mb-0 suggestion-title text-truncate">${sug.title}</h6> <small class="text-muted ms-1 flex-shrink-0">${sug.year ? `(${sug.year})` : ''}</small> </div> <small class="text-muted d-block">${typeBadge}</small> </div>`; itemElement.innerHTML = thumbHTML + textHTML; itemElement.addEventListener('click', (e) => { e.preventDefault(); const { idValue, idType, title, itemType, imageUrl } = e.currentTarget.dataset; console.log(`Odabrano: Tip=${itemType}, ID Tip=${idType}, ID Vrijednost=${idValue}, Naslov=${title}, Slika=${imageUrl}`); if (modalTitle) modalTitle.value = title; if (modalItemType) modalItemType.value = itemType; if (modalTmdbIdInput) modalTmdbIdInput.value = (idType === 'tmdbId' ? idValue : ''); if (modalMalIdInput) modalMalIdInput.value = (idType === 'malId' ? idValue : ''); if (modalImageUrlInput) modalImageUrlInput.value = imageUrl || ''; if (titleSuggestionsDiv) { titleSuggestionsDiv.innerHTML = ''; titleSuggestionsDiv.style.display = 'none'; } const showSE = itemType === 'Anime' || itemType === 'Serija'; if (modalSeasonFields) modalSeasonFields.style.display = showSE ? 'flex' : 'none'; if (!showSE) { if (modalSeason) modalSeason.value = '1'; if (modalEpisode) modalEpisode.value = '1'; } if (modalItemType) modalItemType.dispatchEvent(new Event('change')); }); titleSuggestionsDiv.appendChild(itemElement); }); titleSuggestionsDiv.style.display = 'block'; };
 const debouncedFetchSuggestions = debounce(fetchAndShowSuggestions, 400);
 
 // === OSTALI EVENT LISTENERI ===
