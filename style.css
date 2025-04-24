@@ -10,228 +10,61 @@ body { min-height: 100vh; }
 .site-title { font-weight: 300; }
 .auth-instructions small { color: var(--bs-secondary-color); }
 
-/* Kontejner sadržaja */
-#content-section .container { max-width: 960px; }
+/* Ljepljiva pretraga */
+.sticky-top { z-index: 1020; }
+.sticky-top.bg-body { background-color: var(--bs-body-bg) !important; }
 
-/* Stil za prikaz itema u listi (list-group) */
-#watchlist-items.list-group .list-group-item {
-    border-width: 1px;
-    padding: 0.75rem 1rem;
-    display: flex;
-    align-items: center; /* Vertikalno poravnanje */
-}
-#watchlist-items .list-group-item .badge { vertical-align: middle; font-size: 0.75em; }
-#watchlist-items .list-group-item .item-title { font-weight: 500; margin-left: 0.25rem; }
-#watchlist-items .list-group-item .item-details { margin-top: 0.25rem; }
 
-/* Stil za Poster/Placeholder u listi */
-.list-item-poster, .list-item-poster-placeholder {
-    width: 50px;
-    height: 75px;
-    object-fit: cover;
-    border-radius: 3px;
-    background-color: var(--bs-tertiary-bg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-.list-item-poster-placeholder i { font-size: 1.8rem; }
+/* Stil za listu prijedloga (Autocomplete) */
+#title-suggestions { border: 1px solid var(--bs-border-color-translucent); border-top: none; border-radius: 0 0 var(--bs-border-radius) var(--bs-border-radius); background-color: var(--bs-body-bg); max-height: 250px; overflow-y: auto; box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15); z-index: 1056; }
+#title-suggestions .suggestion-item { cursor: pointer; font-size: 0.9rem; }
+#title-suggestions .suggestion-item h6 { font-size: 1rem; margin-bottom: 0 !important; }
+#title-suggestions .suggestion-item small { font-size: 0.8rem; }
+#title-suggestions:empty { display: none; }
+.suggestion-thumb { width: 40px; height: 60px; object-fit: cover; border-radius: 3px; background-color: var(--bs-secondary-bg); flex-shrink: 0; }
+.suggestion-type-badge { font-size: 0.65em; vertical-align: middle; opacity: 0.8; }
 
-/* Stil za pogledane iteme */
-.item-watched { opacity: 0.7; background-color: var(--bs-secondary-bg-subtle); }
-.item-watched .item-title { text-decoration: line-through; font-weight: normal !important; }
-
-/* Gumbi s ikonama u listi */
-.item-actions .btn { padding: 0.2rem 0.4rem; line-height: 1; transition: transform 0.15s ease-out, opacity 0.15s ease-out; }
-.item-actions .btn:hover { opacity: 1; transform: scale(1.15); }
-.item-actions .btn i { vertical-align: -0.125em; }
-
-/* Ikona zvjezdice */
-.favorite-icon-placeholder i { font-size: 1.1rem; transition: color 0.2s ease, transform 0.2s ease; }
-.favorite-icon-placeholder i:hover { transform: scale(1.2); color: var(--bs-warning); }
 
 /* Kontrole za filtere */
 #filter-controls .btn { font-size: 0.85rem; padding: 0.3rem 0.6rem; } #filter-controls .btn i { vertical-align: -0.1em; }
 .theme-button { width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; }
 
-/* Stil za listu prijedloga (Autocomplete) */
-#title-suggestions { border: 1px solid var(--bs-border-color-translucent); border-top: none; border-radius: 0 0 var(--bs-border-radius) var(--bs-border-radius); background-color: var(--bs-body-bg); max-height: 250px; overflow-y: auto; box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15); }
-#title-suggestions .suggestion-item { cursor: pointer; font-size: 0.9rem; }
-#title-suggestions .suggestion-item h6 { font-size: 1rem; margin-bottom: 0 !important; }
-#title-suggestions .suggestion-item small { font-size: 0.8rem; }
-#title-suggestions:empty { display: none; }
-/* Stil za thumbnail u autocomplete */
-.suggestion-thumb { width: 40px; height: 60px; object-fit: cover; border-radius: 3px; background-color: var(--bs-secondary-bg); flex-shrink: 0; }
-
+/* === CARD VIEW V2 STYLES === */
+.watchlist-card-v2 { position: relative; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 0.375rem; overflow: hidden; min-height: 180px; background-color: #343a40; background-size: cover; background-position: center; transition: transform 0.2s ease-out, box-shadow 0.2s ease-out; }
+.watchlist-card-v2:hover { transform: translateY(-3px); box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.3); }
+.watchlist-card-v2::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; transition: background-color 0.3s ease, backdrop-filter 0.3s ease; }
+.watchlist-card-v2[data-overlay="card-overlay-dark"]::before { background-color: rgba(0, 0, 0, 0.6); backdrop-filter: none; }
+.watchlist-card-v2[data-overlay="card-overlay-blur"]::before { background-color: rgba(0, 0, 0, 0.4); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); }
+.watchlist-card-v2 .card-body-content { position: relative; z-index: 1; }
+.watchlist-card-v2 .card-title { font-weight: 600; color: #fff; }
+.watchlist-card-v2 .item-type-text { color: rgba(255, 255, 255, 0.7); font-size: 0.75rem; }
+.watchlist-card-v2 .card-actions-top .btn { color: rgba(255, 255, 255, 0.8); padding: 0.1rem; }
+.watchlist-card-v2 .card-actions-top .btn:hover i { opacity: 1; transform: scale(1.15); }
+.watchlist-card-v2 .card-actions-top .bi-check-circle-fill { color: #198754; }
+.watchlist-card-v2 .card-actions-top .bi-circle { color: rgba(255, 255, 255, 0.6); }
+.watchlist-card-v2 .card-actions-top .bi-trash3-fill { color: #dc3545; }
+.watchlist-card-v2 .favorite-icon-placeholder i { color: rgba(255, 255, 255, 0.6); transition: color 0.2s ease, transform 0.2s ease; }
+.watchlist-card-v2 .favorite-icon-placeholder i.bi-star-fill { color: #ffc107; }
+.watchlist-card-v2 .favorite-icon-placeholder:hover i { transform: scale(1.2); color: #ffc107 !important; }
+.se-controls { gap: 0.25rem; }
+.se-controls .form-label { color: rgba(255, 255, 255, 0.8); margin-bottom: 0; font-size: 0.85em; }
+.se-controls .se-input { width: 55px; background-color: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.2); color: #fff; text-align: center; padding: 0.2rem 0.3rem; -moz-appearance: textfield; }
+.se-controls .se-input::-webkit-outer-spin-button, .se-controls .se-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.se-controls .episode-increment-btn { padding: 0.1rem 0.4rem; font-size: 0.9rem; line-height: 1.2; border-color: rgba(255, 255, 255, 0.5); color: rgba(255, 255, 255, 0.8); }
+.se-controls .episode-increment-btn:hover { background-color: rgba(255, 255, 255, 0.2); border-color: rgba(255, 255, 255, 0.8); color: #fff; }
+.rating-display span { color: rgba(255, 255, 255, 0.9); font-size: 0.9em; }
+.watchlist-card-v2.item-watched .card-title { font-weight: normal; opacity: 0.8; }
 
 /* Dark Mode stilovi */
 [data-bs-theme="dark"] .auth-container { border-color: rgba(255, 255, 255, 0.15); }
-[data-bs-theme="dark"] .item-watched { opacity: 0.65; }
-[data-bs-theme="dark"] .item-watched .item-title { text-decoration-color: rgba(var(--bs-light-rgb), 0.5); }
 [data-bs-theme="dark"] .badge.bg-secondary { background-color: var(--bs-secondary-bg-subtle) !important; color: var(--bs-secondary-text-emphasis) !important; border: 1px solid var(--bs-secondary-border-subtle); }
 [data-bs-theme="dark"] #title-suggestions { border-color: var(--bs-border-color); }
-[data-bs-theme="dark"] .list-item-poster-placeholder { background-color: var(--bs-secondary-bg-subtle); }
 [data-bs-theme="dark"] .suggestion-thumb { background-color: var(--bs-tertiary-bg); }
 
-
-/* Sakrij strelice na number inputima */
+/* Sakrij strelice na number inputima globalno */
 input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 input[type=number] { -moz-appearance: textfield; }
 
-/* === CARD VIEW V2 STYLES (Prema slici) === */
-
-.watchlist-card-v2 {
-    position: relative; /* Potrebno za pseudo-element overlay */
-    border: 1px solid rgba(255, 255, 255, 0.1); /* Suptilni obrub */
-    border-radius: 0.375rem; /* Bootstrap default radius */
-    overflow: hidden; /* Da se overlay ne prelijeva */
-    min-height: 180px; /* Minimalna visina kartice */
-    background-color: #343a40; /* Tamna fallback pozadina */
-    /* Stilovi za pozadinsku sliku postavljeni inline JS-om */
-    background-size: cover;
-    background-position: center;
-    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
-}
-
-.watchlist-card-v2:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.3);
-}
-
-/* Overlay za pozadinsku sliku (pseudo-element) */
-.watchlist-card-v2::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 0; /* Ispod sadržaja */
-    pointer-events: none; /* Da ne ometa klikove */
-    transition: background-color 0.3s ease, backdrop-filter 0.3s ease;
-}
-
-/* Stilovi overlay-a definirani data-atributom */
-.watchlist-card-v2[data-overlay="card-overlay-dark"]::before {
-     background-color: rgba(0, 0, 0, 0.6); /* Tamni poluprozirni overlay */
-     backdrop-filter: none;
-}
-.watchlist-card-v2[data-overlay="card-overlay-blur"]::before {
-     background-color: rgba(0, 0, 0, 0.4); /* Malo svjetliji overlay s blur efektom */
-     backdrop-filter: blur(5px); /* Blur efekt */
-     -webkit-backdrop-filter: blur(5px); /* Za Safari */
-}
-
-
-/* Sadržaj kartice (iznad overlay-a) */
-.watchlist-card-v2 .card-body-content {
-    position: relative; /* Da bude iznad ::before elementa */
-    z-index: 1;
-}
-
-/* Naslov */
-.watchlist-card-v2 .card-title {
-    font-weight: 600; /* Malo deblji naslov */
-    color: #fff;
-}
-
-/* Tekst tipa itema */
-.watchlist-card-v2 .item-type-text {
-   color: rgba(255, 255, 255, 0.7); /* Svjetlo siva */
-   font-size: 0.75rem;
-}
-
-/* Gumbi u gornjem desnom kutu */
-.watchlist-card-v2 .card-actions-top .btn {
-    color: rgba(255, 255, 255, 0.8); /* Default boja ikona */
-    padding: 0.1rem; /* Smanji padding */
-}
-.watchlist-card-v2 .card-actions-top .btn:hover i {
-    opacity: 1;
-    transform: scale(1.15);
-}
-.watchlist-card-v2 .card-actions-top .bi-check-circle-fill { color: #198754; } /* Zelena za pogledano */
-.watchlist-card-v2 .card-actions-top .bi-circle { color: rgba(255, 255, 255, 0.6); } /* Siva za nepogledano */
-.watchlist-card-v2 .card-actions-top .bi-trash3-fill { color: #dc3545; } /* Crvena za brisanje */
-
-/* Zvjezdica za favorite */
-.watchlist-card-v2 .favorite-icon-placeholder i {
-    color: rgba(255, 255, 255, 0.6); /* Default siva */
-    transition: color 0.2s ease, transform 0.2s ease;
-}
-.watchlist-card-v2 .favorite-icon-placeholder i.bi-star-fill {
-    color: #ffc107; /* Žuta */
-}
-.watchlist-card-v2 .favorite-icon-placeholder:hover i {
-    transform: scale(1.2);
-    color: #ffc107 !important; /* Uvijek žuta na hover */
-}
-
-
-/* Kontrole za Sezonu / Epizodu */
-.se-controls {
-    gap: 0.25rem; /* Mali razmak između elemenata */
-}
-.se-controls .form-label {
-    color: rgba(255, 255, 255, 0.8);
-    margin-bottom: 0;
-    font-size: 0.85em;
-}
-.se-controls .se-input {
-    width: 55px; /* Fiksna širina kao na slici */
-    background-color: rgba(0, 0, 0, 0.3); /* Tamnija pozadina inputa */
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: #fff;
-    text-align: center;
-    padding: 0.2rem 0.3rem; /* Manji padding */
-    -moz-appearance: textfield; /* Sakrij strelice */
-}
-.se-controls .se-input::-webkit-outer-spin-button,
-.se-controls .se-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-.se-controls .episode-increment-btn {
-    padding: 0.1rem 0.4rem; /* Manji padding */
-    font-size: 0.9rem;
-    line-height: 1.2;
-    border-color: rgba(255, 255, 255, 0.5);
-    color: rgba(255, 255, 255, 0.8);
-}
-.se-controls .episode-increment-btn:hover {
-     background-color: rgba(255, 255, 255, 0.2);
-     border-color: rgba(255, 255, 255, 0.8);
-     color: #fff;
-}
-
-/* Prikaz Ocjene */
-.rating-display span {
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 0.9em;
-}
-
-/* Specifični stilovi za pogledane iteme (ako treba dodatno) */
-.watchlist-card-v2.item-watched .card-title {
-    /* Možda ne treba line-through ako je ikona dovoljna */
-    /* text-decoration: line-through;
-    text-decoration-color: rgba(255, 255, 255, 0.5); */
-    font-weight: normal; /* Tanji font za pogledane */
-    opacity: 0.8;
-}
-
-/* Brisanje starih/neiskorištenih stilova (opcionalno, ali preporučeno) */
-#watchlist-items.list-group .list-group-item,
-.list-item-poster, .list-item-poster-placeholder,
-.watchlist-card /* Stara klasa */ {
-    display: none !important; /* Sakrij elemente sa starim stilovima */
-}
-
-
+/* Brisanje starih/neiskorištenih stilova */
+#watchlist-items.list-group .list-group-item, .list-item-poster, .list-item-poster-placeholder, .watchlist-card { display: none !important; }
 /* === END CARD VIEW V2 STYLES === */
-/* Stil za oznaku tipa u autocomplete prijedlozima */
-.suggestion-type-badge {
-    font-size: 0.65em; /* Manji font */
-    vertical-align: middle; /* Poravnaj s tekstom */
-    opacity: 0.8;
-}
