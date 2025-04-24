@@ -1,113 +1,353 @@
- // ==========================================================================
- // POČETAK script.js KODA - VERZIJA S POPRAVCIMA I SW REGISTRACIJOM
- // ==========================================================================
+// ==========================================================================
+// POČETAK script.js KODA - Verzija s KARTICAMA V2 i Autocomplete (Film+Anime)
+// Kompletna i Ispravljena Verzija
+// ==========================================================================
 
- const firebaseConfig = {
-    apiKey: "AIzaSyAn5aI0Rsna-cCtd_TyxAFWdnjS8TB_7v8", // <-- ZAMIJENI
-    authDomain: "moja-watch-lista.firebaseapp.com", // <-- ZAMIJENI
-    projectId: "moja-watch-lista", // <-- ZAMIJENI
-    storageBucket: "moja-watch-lista.firebasestorage.app", // <-- ZAMIJENI
-    messagingSenderId: "473312198206", // <-- ZAMIJENI
-    appId: "1:473312198206:web:aeb0eeacd69eb0619e9b6f" // <-- ZAMIJENI
-  };
- 
-  // Inicijaliziraj Firebase
-  try { firebase.initializeApp(firebaseConfig); console.log("Firebase OK!"); }
-  catch (error) { console.error("Firebase Init Err:", error); alert("Greška povezivanja."); }
- 
-  // Firebase reference
-  const auth = firebase.auth();
-  const db = firebase.firestore();
- 
-  // === Dohvati reference na HTML elemente ===
-  function getEl(id) { const el = document.getElementById(id); if (!el) console.warn(`Element '${id}' nije pronađen.`); return el; }
-  const authSection = getEl('auth-section'); const contentSection = getEl('content-section'); const authForm = getEl('auth-form'); const emailInput = getEl('emailInput'); const passwordInput = getEl('passwordInput'); const loginButton = getEl('loginButton'); const registerButton = getEl('registerButton'); const logoutButton = getEl('logoutButton'); const authError = getEl('auth-error'); const userEmailSpan = getEl('userEmail');
-  const watchlistItemsDiv = getEl('watchlist-items'); const loadingIndicator = getEl('loading-indicator');
-  const themeToggleButton = getEl('theme-toggle-button'); const themeToggleIcon = themeToggleButton?.querySelector('i');
-  const addItemModalEl = getEl('addItemModal'); const addItemModal = addItemModalEl ? new bootstrap.Modal(addItemModalEl) : null; const modalForm = getEl('modal-add-item-form');
-  const modalTitle = getEl('modalItemTitle'); const modalType = getEl('modalItemType'); const modalWatched = getEl('modalItemWatched'); const modalRatingFields = getEl('modal-rating-fields'); const modalRating = getEl('modalItemRating'); const modalSeasonFields = getEl('modal-season-episode-fields'); const modalSeason = getEl('modalItemSeason'); const modalEpisode = getEl('modalItemEpisode'); const modalFavorite = getEl('modalItemFavorite');
-  const filterControls = getEl('filter-controls');
-  // === KRAJ DOHVAĆANJA ELEMENATA ===
- 
-  // --- Globalne varijable ---
-  let unsubscribeFromWatchlist = null; let currentUserId = null; let allUserItems = []; let currentFilter = 'all';
- 
-  // --- FUNKCIJE ZA UPRAVLJANJE TEMOM ---
-  const applyTheme = (theme) => { document.documentElement.setAttribute('data-bs-theme', theme); if (themeToggleIcon) themeToggleIcon.className = theme === 'dark' ? 'bi bi-brightness-high-fill' : 'bi bi-moon-stars-fill'; };
-  const toggleTheme = () => { const newTheme = document.documentElement.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark'; localStorage.setItem('theme', newTheme); applyTheme(newTheme); };
-  const loadTheme = () => { applyTheme(localStorage.getItem('theme') || 'light'); };
- 
-  // --- Listener za promjenu statusa prijave ---
-  auth.onAuthStateChanged(user => {
-      currentUserId = user ? user.uid : null;
-      if (user) { console.log("Login OK:", user.email); if (authSection) authSection.classList.add('d-none'); if (contentSection) contentSection.classList.remove('d-none'); if (userEmailSpan) userEmailSpan.textContent = user.email; if (authError) authError.classList.add('d-none'); authForm?.reset(); fetchAndDisplayWatchlist(user.uid); }
-      else { console.log("Logout OK."); stopListeningToWatchlist(); allUserItems = []; currentFilter = 'all'; if (authSection) authSection.classList.remove('d-none'); if (contentSection) contentSection.classList.add('d-none'); if (userEmailSpan) userEmailSpan.textContent = ''; if (watchlistItemsDiv) watchlistItemsDiv.innerHTML = ''; if (loadingIndicator) { loadingIndicator.style.display = 'block'; loadingIndicator.textContent = 'Učitavanje...'; } const af = document.getElementById('filterAll'); if(af) af.checked = true; }
-  });
- 
-  // --- Listeneri za Modal Formu ---
-  if (modalType) { modalType.addEventListener('change', () => { const show = modalType.value === 'Anime' || modalType.value === 'Serija'; if (modalSeasonFields) modalSeasonFields.style.display = show ? 'flex' : 'none'; }); }
-  if (modalWatched) { modalWatched.addEventListener('change', () => { if (modalRatingFields) modalRatingFields.classList.toggle('d-none', !modalWatched.checked); if (!modalWatched.checked && modalRating) modalRating.value = ''; }); }
-  if(addItemModalEl) { addItemModalEl.addEventListener('hidden.bs.modal', () => { modalForm?.reset(); if (modalSeasonFields) modalSeasonFields.style.display = 'none'; if (modalRatingFields) modalRatingFields.classList.add('d-none'); }); }
- 
-  // --- FUNKCIJE ZA AUTENTIFIKACIJU (ISPRAVLJENE) ---
-  const showAuthError = (msg) => { if (authError) { authError.textContent = msg; authError.classList.remove('d-none'); } else alert(msg); };
-  const handleLogin = () => { if (!emailInput || !passwordInput || !authError) { console.error("Auth elementi nedostaju."); return; } const email = emailInput.value.trim(); const password = passwordInput.value; authError.classList.add('d-none'); authError.textContent = ''; if (!email || !password) { showAuthError("Molimo unesite email i lozinku."); return; } console.log("Pokušaj prijave..."); auth.signInWithEmailAndPassword(email, password) .then((uc) => { console.log("Prijava uspješna:", uc?.user?.email); }) .catch((error) => { console.error("Greška pri prijavi:", error.code); let poruka = "Došlo je do greške."; if (error.code.includes('auth/invalid') || error.code.includes('auth/wrong-password')) { poruka = "Neispravan email ili lozinka."; } showAuthError(poruka); }); };
-  const handleRegister = () => { if (!emailInput || !passwordInput || !authError) { console.error("Auth elementi nedostaju."); return; } const email = emailInput.value.trim(); const password = passwordInput.value; authError.classList.add('d-none'); authError.textContent = ''; if (!email || !password) { showAuthError("Molimo unesite email i lozinku."); return; } if (password.length < 6) { showAuthError("Lozinka mora imati bar 6 znakova."); return; } console.log("Pokušaj registracije..."); auth.createUserWithEmailAndPassword(email, password) .then((uc) => { console.log("Registracija uspješna:", uc?.user?.email); }) .catch((error) => { console.error("Greška reg:", error.code); let poruka = "Greška registracije."; if (error.code === 'auth/email-already-in-use') poruka = "Email zauzet."; else if (error.code === 'auth/invalid-email') poruka = "Neispravan email."; else if (error.code === 'auth/weak-password') poruka = "Lozinka preslaba."; showAuthError(poruka); }); };
-  const handleLogout = () => { auth.signOut().catch(e => console.error("Logout err:", e)); };
- 
-  // --- FUNKCIJA ZA DODAVANJE / SPREMANJE UNOSA ---
-  const handleSaveItem = (event) => { event.preventDefault(); if (!modalTitle || !modalType) return; const title = modalTitle.value.trim(), type = modalType.value, season = modalSeason?.value || '1', episode = modalEpisode?.value || '1', watched = modalWatched?.checked || false, rating = modalRating?.value || '', favorite = modalFavorite?.checked || false; if (!title || !type) { alert('Unesite naslov i tip.'); return; } if (watched && !rating) { alert('Unesite ocjenu.'); return; } const ratingNum = parseInt(rating); if (watched && rating && (isNaN(ratingNum) || ratingNum < 1 || ratingNum > 10)) { alert('Ocjena 1-10.'); return; } if (!currentUserId) { alert("Niste prijavljeni!"); return; } const newItem = { userId: currentUserId, title, type, watched, favorite, createdAt: firebase.firestore.FieldValue.serverTimestamp(), rating: watched && rating ? ratingNum : null }; if (type === 'Anime' || type === 'Serija') { newItem.season = parseInt(season) || 1; newItem.episode = parseInt(episode) || 1; } console.log('Spremam:', newItem); db.collection('watchlist').add(newItem).then(dr => { console.log("Spremljeno:", dr.id); addItemModal?.hide(); }).catch(e => { console.error("Greška dodavanja:", e); alert("Greška spremanja."); }); };
- 
-  // --- FUNKCIJE ZA RAD S LISTOM ---
-  const fetchAndDisplayWatchlist = (userId) => { if (!watchlistItemsDiv || !loadingIndicator || !userId) return; console.log('Dohvaćam SVE iteme za:', userId); loadingIndicator.textContent = 'Učitavam...'; loadingIndicator.style.display = 'block'; watchlistItemsDiv.innerHTML = ''; stopListeningToWatchlist(); const query = db.collection('watchlist').where('userId', '==', userId); unsubscribeFromWatchlist = query.onSnapshot(qs => { console.log("Primljene SVE promjene"); allUserItems = []; qs.forEach(doc => allUserItems.push({ id: doc.id, ...doc.data() })); if (loadingIndicator) loadingIndicator.style.display = 'none'; applyCurrentFilter(); }, e => { console.error("Greška dohvaćanja:", e); if (loadingIndicator) loadingIndicator.textContent = 'Greška.'; if (e.code === 'permission-denied') alert("Nemate dozvolu čitanja."); }); console.log("Listener postavljen."); };
-  const stopListeningToWatchlist = () => { if (unsubscribeFromWatchlist) { console.log("Zaustavljam listener..."); unsubscribeFromWatchlist(); unsubscribeFromWatchlist = null; } };
-  const applyCurrentFilter = () => { if (!watchlistItemsDiv) return; console.log(`Filter: ${currentFilter}`); let f = []; if (currentFilter === 'all') f = [...allUserItems]; else if (currentFilter === 'favorite') f = allUserItems.filter(i => i.favorite); else f = allUserItems.filter(i => i.type === currentFilter); displayItems(f); };
- 
-  // --- FUNKCIJA ZA PRIKAZ ELEMENATA LISTE (REDIZAJNIRANA) ---
-  const displayItems = (itemsToDisplay) => { if (!watchlistItemsDiv) return; watchlistItemsDiv.innerHTML = ''; if (itemsToDisplay.length === 0) { watchlistItemsDiv.innerHTML = `<p class="text-muted text-center mt-5">Nema unosa ${currentFilter !== 'all' ? `za filter "${currentFilter}"` : ''}.</p>`; return; } itemsToDisplay.sort((a, b) => { if (a.watched !== b.watched) return a.watched - b.watched; if (a.favorite !== b.favorite) return b.favorite - a.favorite; const tA = a.createdAt?.toDate?.()?.getTime() || 0; const tB = b.createdAt?.toDate?.()?.getTime() || 0; return tB - tA; }); watchlistItemsDiv.className = 'row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-5'; itemsToDisplay.forEach(item => { const colDiv = document.createElement('div'); colDiv.className = 'col'; const card = document.createElement('div'); card.className = `card h-100 shadow-sm ${item.watched ? 'item-watched' : ''}`; let typeIcon = 'bi-question-circle', typeColor = 'text-muted'; if (item.type === 'Film') { typeIcon = 'bi-film'; typeColor = 'text-primary'; } else if (item.type === 'Serija') { typeIcon = 'bi-tv-fill'; typeColor = 'text-success'; } else if (item.type === 'Anime') { typeIcon = 'bi-mask'; typeColor = 'text-info'; } let cardHTML = `<div class="card-body d-flex flex-column"><div class="d-flex justify-content-between align-items-start mb-2"><div><h5 class="card-title mb-1 d-flex align-items-center"><span class="me-2 favorite-icon-placeholder" data-id="${item.id}"></span><span class="item-title">${item.title || ''}</span></h5><small class="text-muted d-flex align-items-center"><i class="bi ${typeIcon} ${typeColor} me-1"></i> ${item.type || ''}</small></div><div class="item-actions d-flex flex-nowrap ms-2"></div></div><div class="item-details mb-3 flex-grow-1"></div></div>`; card.innerHTML = cardHTML; const detailsDiv = card.querySelector('.item-details'); if (detailsDiv) { if (item.type === 'Anime' || item.type === 'Serija') { detailsDiv.innerHTML += `<div class="d-flex align-items-center season-episode-controls mb-2"><span class="badge text-bg-secondary me-1">S:</span><input type="number" min="1" value="${item.season || 1}" class="form-control form-control-sm season-input me-2" style="width: 60px;" data-id="${item.id}"><span class="badge text-bg-secondary me-1">E:</span><input type="number" min="1" value="${item.episode || 1}" class="form-control form-control-sm episode-input me-2" style="width: 60px;" data-id="${item.id}"><button class="btn btn-sm btn-outline-success save-progress-btn py-0 px-1 flex-shrink-0" data-id="${item.id}" title="Spremi Sez/Ep"><i class="bi bi-save"></i></button></div>`; } if (item.watched) { detailsDiv.innerHTML += `<div class="d-flex align-items-center rating-controls"><label for="rating-${item.id}" class="form-label-sm me-1 mb-0 text-body-secondary">Ocjena:</label><input type="number" min="1" max="10" value="${item.rating || ''}" id="rating-${item.id}" class="form-control form-control-sm rating-input me-1" style="width: 65px;" placeholder="1-10"><button class="btn btn-sm btn-outline-success save-rating-btn py-0 px-1 flex-shrink-0" data-id="${item.id}" title="Spremi ocjenu"><i class="bi bi-save"></i></button></div>`; } else { detailsDiv.innerHTML += '<div style="min-height: 31px;"></div>'; } } const actionsDiv = card.querySelector('.item-actions'); if (actionsDiv) { const wi = item.watched ? 'bi-check-circle-fill text-success' : 'bi-circle text-secondary'; const wt = item.watched ? 'Nepogledano' : 'Pogledano'; actionsDiv.innerHTML += `<button class="btn btn-sm border-0 rounded-circle p-1 me-1 watched-toggle-btn" data-id="${item.id}" data-watched="${item.watched}" title="${wt}"><i class="bi ${wi}" style="font-size: 1.2rem;"></i></button>`; actionsDiv.innerHTML += `<button class="btn btn-sm btn-outline-danger border-0 rounded-circle p-1 delete-item-btn" data-id="${item.id}" title="Obriši"><i class="bi bi-trash3-fill"></i></button>`; } const favPlaceholder = card.querySelector('.favorite-icon-placeholder'); if (favPlaceholder) { const fic = item.favorite ? 'bi-star-fill text-warning' : 'bi-star text-muted'; const ft = item.favorite ? 'Makni iz omiljenih' : 'Dodaj u omiljene'; favPlaceholder.innerHTML = `<i class="bi ${fic} favorite-toggle-icon" role="button" title="${ft}" style="cursor: pointer; font-size: 1.1rem;"></i>`; } colDiv.appendChild(card); watchlistItemsDiv.appendChild(colDiv); }); };
- 
-  // --- Event Listener za Akcije na Listi ---
-  if (watchlistItemsDiv) { watchlistItemsDiv.addEventListener('click', (e) => { const t = e.target; const delBtn = t.closest('.delete-item-btn'); if (delBtn) { const id = delBtn.dataset.id; if (id && confirm(`Obrisati?`)) deleteItem(id); return; } const saveRateBtn = t.closest('.save-rating-btn'); if (saveRateBtn) { const id = saveRateBtn.dataset.id; const ri = document.getElementById(`rating-${id}`); if (id && ri) { const v = ri.value; if (v === "") { if (confirm("Ukloniti ocjenu?")) updateItemRating(id, null); } else { const n = parseInt(v); if (!isNaN(n) && n >= 1 && n <= 10) updateItemRating(id, n); else alert("Ocjena 1-10."); } } return; } const watchBtn = t.closest('.watched-toggle-btn'); if (watchBtn) { const id = watchBtn.dataset.id; const cw = watchBtn.dataset.watched === 'true'; updateItemWatchedStatus(id, !cw); return; } const favIcon = t.closest('.favorite-toggle-icon'); if (favIcon) { const ph = favIcon.closest('.favorite-icon-placeholder'); const id = ph?.dataset.id; const cf = favIcon.classList.contains('bi-star-fill'); if (id) updateItemFavoriteStatus(id, !cf); return; } const saveProgBtn = t.closest('.save-progress-btn'); if (saveProgBtn) { const id = saveProgBtn.dataset.id; const cardBody = saveProgBtn.closest('.card-body'); const si = cardBody?.querySelector(`.season-input[data-id="${id}"]`); const ei = cardBody?.querySelector(`.episode-input[data-id="${id}"]`); if (id && si && ei) { const ns = parseInt(si.value) || 1; const ne = parseInt(ei.value) || 1; updateItemProgress(id, ns, ne); } return; } }); }
-  // --- Event Listener za Filtere ---
-  if (filterControls) { filterControls.addEventListener('change', (e) => { if (e.target.type === 'radio') { currentFilter = e.target.value; applyCurrentFilter(); } }); }
- 
-  // --- FUNKCIJE ZA BRISANJE I AŽURIRANJE ---
-  const deleteItem = (id) => { if (!id) return; db.collection('watchlist').doc(id).delete().catch(e => console.error("Err del:", e)); };
-  const updateItemProgress = (id, s, e) => { if (!id || isNaN(s) || s < 1 || isNaN(e) || e < 1) { alert("Err S/E."); return; } db.collection('watchlist').doc(id).update({ season: s, episode: e }).then(() => showFeedback(`S${s}E${e} spremljeno`)).catch(e => console.error(`Err S/E ${id}:`, e)); };
-  const updateItemWatchedStatus = (id, ws) => { if (!id) return; const d = { watched: ws }; if (!ws) d.rating = null; db.collection('watchlist').doc(id).update(d).catch(e => console.error(`Err watched=${ws} ${id}:`, e)); };
-  const updateItemRating = (id, r) => { if (!id) return; if (r !== null && (isNaN(parseInt(r)) || parseInt(r) < 1 || parseInt(r) > 10)) { alert("Ocjena 1-10."); return; } db.collection('watchlist').doc(id).update({ rating: r }).then(() => showFeedback(`Ocjena spremljena`)).catch(e => console.error(`Err rating=${r} ${id}:`, e)); };
-  const updateItemFavoriteStatus = (id, fs) => { if (!id) return; db.collection('watchlist').doc(id).update({ favorite: fs }).catch(e => console.error(`Err fav=${fs} ${id}:`, e)); };
-  const showFeedback = (msg, type = 'info') => { console.log(`FEEDBACK (${type}): ${msg}`); /* TODO: Toast */ };
- 
-  // === DODAVANJE OSTALIH EVENT LISTENER-a ===
-  if (loginButton) loginButton.addEventListener('click', handleLogin);
-  if (registerButton) registerButton.addEventListener('click', handleRegister);
-  if (logoutButton) { logoutButton.addEventListener('click', handleLogout); logoutButton.addEventListener('click', stopListeningToWatchlist); }
-  if (modalForm) { modalForm.addEventListener('submit', handleSaveItem); console.log('Listener modal submit.'); } else { console.error("Modal forma ?!"); }
-  if (themeToggleButton) themeToggleButton.addEventListener('click', toggleTheme);
- 
-  // === Listener za Enter na Login formi ===
-  if (authForm) {
-      authForm.addEventListener('submit', (event) => { event.preventDefault(); handleLogin(); });
-  }
- 
-  // Učitaj temu
-  loadTheme();
- 
-  // === REGISTRACIJA SERVICE WORKERA ===
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js') // Putanja do SW u root mapi
-        .then(registration => {
-          console.log('SW registriran:', registration.scope);
-        })
-        .catch(error => {
-          console.error('SW registracija neuspješna:', error);
-        });
+const firebaseConfig = {
+    apiKey: "AIzaSyAn5aI0Rsna-cCtd_TyxAFWdnjS8TB_7v8", // <-- ZAMIJENI SVOJIM KLJUČEM
+    authDomain: "moja-watch-lista.firebaseapp.com", // <-- ZAMIJENI SVOJIM PODACIMA
+    projectId: "moja-watch-lista", // <-- ZAMIJENI SVOJIM PODACIMA
+    storageBucket: "moja-watch-lista.appspot.com", // <-- ZAMIJENI SVOJIM PODACIMA (provjeri format!)
+    messagingSenderId: "473312198206", // <-- ZAMIJENI SVOJIM PODACIMA
+    appId: "1:473312198206:web:aeb0eeacd69eb0619e9b6f" // <-- ZAMIJENI SVOJIM PODACIMA
+};
+
+// !! API Ključevi !!
+const TMDB_API_KEY = '59ec0f59412e524b82f4d99477af0478'; // TVOJ TMDb KLJUČ!
+const TMDB_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/';
+const POSTER_SIZE = 'w500'; // Malo veća rezolucija za pozadinu
+const POSTER_SIZE_THUMB = 'w92';
+
+// Inicijaliziraj Firebase
+try {
+    firebase.initializeApp(firebaseConfig);
+    console.log("Firebase inicijaliziran uspješno!");
+}
+catch (error) {
+    console.error("Firebase greška pri inicijalizaciji:", error);
+    alert("Greška pri povezivanju s bazom podataka. Provjerite konfiguraciju.");
+}
+
+// Reference
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// === Dohvati elemente ===
+function getEl(id) {
+    const el = document.getElementById(id);
+    // Nema potrebe za upozorenjem ako element ne postoji u DOM-u
+    return el;
+}
+// Auth
+const authSection = getEl('auth-section'), contentSection = getEl('content-section'), authForm = getEl('auth-form'), emailInput = getEl('emailInput'), passwordInput = getEl('passwordInput'), loginButton = getEl('loginButton'), registerButton = getEl('registerButton'), authError = getEl('auth-error');
+// Content
+const logoutButton = getEl('logoutButton'), userEmailSpan = getEl('userEmail');
+const watchlistItemsDiv = getEl('watchlist-items'), loadingIndicator = getEl('loading-indicator');
+const themeToggleButton = getEl('theme-toggle-button'), themeToggleIcon = themeToggleButton?.querySelector('i');
+const filterControls = getEl('filter-controls');
+// Modal
+const addItemModalEl = getEl('addItemModal'), addItemModal = addItemModalEl ? new bootstrap.Modal(addItemModalEl) : null, modalForm = getEl('modal-add-item-form');
+const modalTitle = getEl('modalItemTitle'), modalType = getEl('modalItemType'), modalWatched = getEl('modalItemWatched'), modalRatingFields = getEl('modal-rating-fields'), modalRating = getEl('modalItemRating'), modalSeasonFields = getEl('modal-season-episode-fields'), modalSeason = getEl('modalItemSeason'), modalEpisode = getEl('modalItemEpisode'), modalFavorite = getEl('modalItemFavorite');
+const titleSuggestionsDiv = getEl('title-suggestions');
+const modalTmdbIdInput = getEl('modalTmdbId');
+const modalMalIdInput = getEl('modalMalId');
+const modalImageUrlInput = getEl('modalImageUrl'); // Dohvat novog inputa za URL slike
+// === KRAJ DOHVAĆANJA ELEMENATA ===
+
+// --- Globalne varijable ---
+let unsubscribeFromWatchlist = null, currentUserId = null, allUserItems = [], currentFilter = 'all';
+
+// --- Debounce funkcija ---
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => { clearTimeout(timeout); func(...args); };
+        clearTimeout(timeout); timeout = setTimeout(later, wait);
+    };
+};
+
+// --- FUNKCIJE ZA TEMU ---
+const applyTheme = (t) => { document.documentElement.setAttribute('data-bs-theme', t); if (themeToggleIcon) themeToggleIcon.className = t === 'dark' ? 'bi bi-brightness-high-fill' : 'bi bi-moon-stars-fill'; };
+const toggleTheme = () => { const newTheme = (document.documentElement.getAttribute('data-bs-theme') || 'light') === 'dark' ? 'light' : 'dark'; localStorage.setItem('theme', newTheme); applyTheme(newTheme); };
+const loadTheme = () => { applyTheme(localStorage.getItem('theme') || 'dark'); }; // Default na dark
+
+// --- AUTH LISTENER ---
+auth.onAuthStateChanged(user => {
+    currentUserId = user?.uid || null;
+    if (user) {
+        console.log("Korisnik prijavljen:", user.email);
+        if (authSection) authSection.classList.add('d-none');
+        if (contentSection) contentSection.classList.remove('d-none');
+        if (userEmailSpan) userEmailSpan.textContent = user.email;
+        if (authError) authError.classList.add('d-none');
+        authForm?.reset();
+        fetchAndDisplayWatchlist(user.uid);
+    } else {
+        console.log("Korisnik odjavljen.");
+        stopListeningToWatchlist();
+        allUserItems = []; currentUserId = null; currentFilter = 'all';
+        if (authSection) authSection.classList.remove('d-none');
+        if (contentSection) contentSection.classList.add('d-none');
+        if (userEmailSpan) userEmailSpan.textContent = '';
+        if (watchlistItemsDiv) watchlistItemsDiv.innerHTML = '';
+        if (loadingIndicator) { loadingIndicator.style.display = 'block'; loadingIndicator.textContent = 'Učitavanje...'; }
+        const filterAllRadio = getEl('filterAll'); if (filterAllRadio) filterAllRadio.checked = true;
+    }
+});
+
+// --- MODAL LISTENERS ---
+if (modalType) {
+    modalType.addEventListener('change', () => {
+        const show = modalType.value === 'Anime' || modalType.value === 'Serija';
+        if (modalSeasonFields) modalSeasonFields.style.display = show ? 'flex' : 'none';
+        if (!show) { if (modalSeason) modalSeason.value = '1'; if (modalEpisode) modalEpisode.value = '1'; }
     });
-  } else { console.log("SW nije podržan."); }
-  // === KRAJ SW REGISTRACIJE ===
- 
-  // ==========================================================================
-  // KRAJ script.js KODA
-  // ==========================================================================
+}
+if (modalWatched) {
+    modalWatched.addEventListener('change', () => {
+        if (modalRatingFields) modalRatingFields.classList.toggle('d-none', !modalWatched.checked);
+        if (!modalWatched.checked && modalRating) modalRating.value = '';
+    });
+}
+// Listener za zatvaranje modala
+if (addItemModalEl) {
+    addItemModalEl.addEventListener('hidden.bs.modal', () => {
+        modalForm?.reset();
+        if (modalTmdbIdInput) modalTmdbIdInput.value = '';
+        if (modalMalIdInput) modalMalIdInput.value = '';
+        if (modalImageUrlInput) modalImageUrlInput.value = ''; // Očisti i URL slike
+        if (modalSeasonFields) modalSeasonFields.style.display = 'none';
+        if (modalRatingFields) modalRatingFields.classList.add('d-none');
+        if (titleSuggestionsDiv) { titleSuggestionsDiv.innerHTML = ''; titleSuggestionsDiv.style.display = 'none'; }
+        if (modalItemType) modalItemType.value = '';
+        if (modalWatched) modalWatched.checked = false;
+        if (modalFavorite) modalFavorite.checked = false;
+    });
+}
+
+// --- AUTH FUNKCIJE ---
+const showAuthError = (msg) => { if (authError) { authError.textContent = msg; authError.classList.remove('d-none'); } else { alert(msg); } };
+const handleAuthAction = async (actionFunc) => {
+    if (!emailInput || !passwordInput || !authError) return;
+    const e = emailInput.value.trim(), p = passwordInput.value;
+    authError.classList.add('d-none');
+    if (!e || !p) { showAuthError("Unesite email i lozinku."); return; }
+    if (actionFunc === auth.createUserWithEmailAndPassword && p.length < 6) { showAuthError("Lozinka min 6 znakova."); return; }
+    try {
+        await actionFunc(e, p);
+         // Uspjeh se obrađuje u onAuthStateChanged
+    } catch (err) {
+        console.error("Auth Err:", err.code, err.message);
+        let msg = "Greška.";
+        if (err.code.includes('auth/invalid-credential') || err.code.includes('auth/wrong-password') || err.code.includes('auth/user-not-found')) msg = "Neispravan email/lozinka.";
+        else if (err.code === 'auth/email-already-in-use') msg = "Email zauzet.";
+        else if (err.code === 'auth/weak-password') msg = "Lozinka preslaba.";
+        else if (err.code === 'auth/invalid-email') msg = "Neispravan format email adrese.";
+        showAuthError(msg);
+    }
+};
+const handleLogin = () => handleAuthAction(auth.signInWithEmailAndPassword);
+const handleRegister = () => handleAuthAction(auth.createUserWithEmailAndPassword);
+const handleLogout = () => { auth.signOut().catch(e => console.error("Logout err:", e)); };
+
+// --- SPREMANJE UNOSA ---
+const handleSaveItem = async (event) => {
+    event.preventDefault();
+    if (!modalTitle || !modalType || !modalTmdbIdInput || !modalMalIdInput || !modalImageUrlInput) {
+        console.error("Ključni modalni elementi nedostaju."); alert("Došlo je do greške. Osvježite stranicu."); return;
+    }
+
+    const title = modalTitle.value.trim();
+    const type = modalItemType.value;
+    const season = modalSeason?.value || '1';
+    const episode = modalEpisode?.value || '1';
+    const watched = modalWatched?.checked || false;
+    const rating = modalRating?.value || '';
+    const favorite = modalFavorite?.checked || false;
+    const tmdbIdValue = modalTmdbIdInput.value || null;
+    const malIdValue = modalMalIdInput.value || null;
+    const imageUrlValue = modalImageUrlInput.value || null;
+
+    // Validacija
+    if (!title || !type) { alert('Unesite naslov i odaberite tip.'); return; }
+    if (watched && !rating) { alert('Ako je pogledano, unesite ocjenu.'); return; }
+    const rNum = parseInt(rating);
+    if (watched && rating && (isNaN(rNum) || rNum < 1 || rNum > 10)) { alert('Ocjena mora biti broj između 1 i 10.'); return; }
+    if (!currentUserId) { console.error("Nema ID-a korisnika kod spremanja."); return; }
+
+    const newItem = {
+        userId: currentUserId,
+        title, type, watched, favorite,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        rating: watched && rating ? rNum : null,
+        tmdbId: type === 'Film' ? tmdbIdValue : null,
+        malId: type === 'Anime' ? malIdValue : null,
+        tmdbPosterPath: null, // Inicijalno null
+        sourceImageUrl: null // Novi field za spremanje Jikan URL-a ili drugog izvora
+    };
+
+    if (type === 'Anime' || type === 'Serija') {
+        newItem.season = parseInt(season) || 1;
+        newItem.episode = parseInt(episode) || 1;
+    }
+
+    // Dohvati TMDb poster path ako je Film
+    if (newItem.type === 'Film' && newItem.tmdbId && TMDB_API_KEY && TMDB_API_KEY !== 'TVOJ_STVARNI_API_KLJUČ_V3') {
+        const detailsUrl = `https://api.themoviedb.org/3/movie/${newItem.tmdbId}?api_key=${TMDB_API_KEY}&language=hr-HR`;
+        try {
+            console.log(`Dohvaćam TMDb detalje za poster filma: ${newItem.tmdbId}`);
+            const r = await fetch(detailsUrl);
+            if (r.ok) { const d = await r.json(); newItem.tmdbPosterPath = d.poster_path; console.log("Pronađen TMDb poster path:", newItem.tmdbPosterPath); }
+            else { console.warn(`TMDb detalji nisu pronađeni ili greška: ${r.status}`); }
+        } catch (e) { console.error("Greška pri dohvaćanju TMDb detalja:", e); }
+    }
+
+    // Ako je Anime, spremi URL slike iz skrivenog polja
+    if (newItem.type === 'Anime' && imageUrlValue) {
+        newItem.sourceImageUrl = imageUrlValue;
+        console.log("Spremam URL slike iz izvora (Jikan):", newItem.sourceImageUrl);
+    }
+
+    // Spremi u Firestore
+    console.log('Spremam u Firestore:', newItem);
+    try {
+        const docRef = await db.collection('watchlist').add(newItem);
+        console.log("Dokument uspješno spremljen s ID:", docRef.id);
+        addItemModal?.hide();
+    } catch (error) {
+        console.error("Greška pri spremanju u Firestore:", error);
+        alert("Došlo je do greške prilikom spremanja unosa.");
+    }
+};
+
+// --- LISTA & FILTRIRANJE ---
+const fetchAndDisplayWatchlist = (userId) => {
+    if (!watchlistItemsDiv || !loadingIndicator || !userId) { console.warn("Nedostaju elementi za prikaz liste ili ID korisnika."); return; }
+    console.log('Dohvaćam watch listu za korisnika:', userId);
+    loadingIndicator.textContent = 'Učitavam...'; loadingIndicator.style.display = 'block'; watchlistItemsDiv.innerHTML = '';
+    stopListeningToWatchlist();
+    const query = db.collection('watchlist').where('userId', '==', userId);
+    unsubscribeFromWatchlist = query.onSnapshot( (querySnapshot) => {
+        console.log("Primljene promjene s Firestore-a"); allUserItems = [];
+        querySnapshot.forEach((doc) => { allUserItems.push({ id: doc.id, ...doc.data() }); });
+        if (loadingIndicator) loadingIndicator.style.display = 'none';
+        applyCurrentFilter();
+    }, (error) => {
+        console.error("Greška pri dohvaćanju watch liste:", error); if (loadingIndicator) loadingIndicator.textContent = 'Greška pri učitavanju.';
+        if (error.code === 'permission-denied') { alert("Nemate dozvolu za čitanje podataka. Provjerite Firestore pravila."); }
+    });
+    console.log("Firestore listener postavljen.");
+};
+
+const stopListeningToWatchlist = () => { if (unsubscribeFromWatchlist) { console.log("Zaustavljam Firestore listener..."); unsubscribeFromWatchlist(); unsubscribeFromWatchlist = null; } };
+
+const applyCurrentFilter = () => {
+    if (!watchlistItemsDiv) return; console.log(`Primjenjujem filter: ${currentFilter}`);
+    let filteredItems = [];
+    if (currentFilter === 'all') { filteredItems = [...allUserItems]; }
+    else if (currentFilter === 'favorite') { filteredItems = allUserItems.filter(item => item.favorite); }
+    else { filteredItems = allUserItems.filter(item => item.type === currentFilter); }
+    displayItems(filteredItems);
+};
+
+// --- FUNKCIJA ZA PRIKAZ ELEMENATA LISTE (KARTICE V2) ---
+const displayItems = (itemsToDisplay) => {
+    if (!watchlistItemsDiv) return;
+    watchlistItemsDiv.className = 'row g-3 mb-5';
+    watchlistItemsDiv.innerHTML = '';
+
+    if (itemsToDisplay.length === 0) {
+        let filterText = ''; switch(currentFilter) { case 'all': filterText = ''; break; case 'favorite': filterText = ' omiljenih'; break; default: filterText = ` tipa "${currentFilter}"`; break; }
+        watchlistItemsDiv.innerHTML = `<div class="col-12"><p class="text-muted text-center mt-5">Nema${filterText} unosa.</p></div>`; return;
+    }
+
+    itemsToDisplay.sort((a, b) => { if (a.watched !== b.watched) return a.watched ? 1 : -1; if (a.favorite !== b.favorite) return b.favorite ? -1 : 1; const tA = a.createdAt?.toDate?.()?.getTime() || 0; const tB = b.createdAt?.toDate?.()?.getTime() || 0; return tB - tA; });
+
+    itemsToDisplay.forEach(item => {
+        const colDiv = document.createElement('div');
+        colDiv.className = 'col-12 col-md-6 col-lg-4 d-flex';
+        const cardDiv = document.createElement('div');
+        cardDiv.className = `card watchlist-card-v2 flex-fill shadow-sm text-white`;
+        cardDiv.dataset.id = item.id;
+
+        // --- Pozadinska slika i overlay ---
+        let backgroundStyle = '';
+        let overlayClass = 'card-overlay-dark';
+
+        if (item.type === 'Film' && item.tmdbPosterPath) {
+            const posterUrl = `${TMDB_IMAGE_BASE_URL}${POSTER_SIZE}${item.tmdbPosterPath}`;
+            backgroundStyle = `background-image: url('${posterUrl}');`;
+            overlayClass = 'card-overlay-blur';
+        } else if (item.type === 'Anime' && item.sourceImageUrl) {
+            backgroundStyle = `background-image: url('${item.sourceImageUrl}');`;
+            overlayClass = 'card-overlay-blur';
+        }
+
+        cardDiv.style.cssText = backgroundStyle;
+        cardDiv.dataset.overlay = overlayClass;
+
+        // --- Sadržaj Kartice ---
+        let cardContentHTML = `<div class="card-body-content p-3 d-flex flex-column h-100">`;
+        // Gornji Red: Favorit, Naslov, Akcije
+        cardContentHTML += `<div class="d-flex justify-content-between align-items-start mb-2"> <div class="d-flex align-items-center me-2 flex-grow-1" style="min-width: 0;"> <span class="favorite-icon-placeholder me-2 flex-shrink-0" title="${item.favorite ? 'Makni omiljeno' : 'Dodaj omiljeno'}" style="cursor:pointer; line-height: 1;"> <i class="bi ${item.favorite ? 'bi-star-fill text-warning' : 'bi-star'} favorite-toggle-card-icon" style="font-size:1.1rem; vertical-align: middle;"></i> </span> <h6 class="card-title mb-0 text-truncate">${item.title || 'N/A'}</h6> </div> <div class="d-flex flex-nowrap card-actions-top flex-shrink-0"> <button class="btn btn-sm border-0 p-0 me-2 watched-toggle-card-btn" data-watched="${item.watched}" title="${item.watched ? 'Označi kao Nepogledano' : 'Označi kao Pogledano'}"> <i class="bi ${item.watched ? 'bi-check-circle-fill text-success' : 'bi-circle'}" style="font-size:1.1rem;"></i> </button> <button class="btn btn-sm border-0 p-0 delete-card-btn" title="Obriši"> <i class="bi bi-trash3-fill text-danger" style="font-size:1.1rem;"></i> </button> </div> </div>`;
+        // Ikona Tipa i Naziv Tipa
+        let typeIconClass = 'bi-question-circle'; let typeIconColor = 'text-secondary'; let typeText = item.type || 'Nepoznato'; if (item.type === 'Serija') { typeIconClass = 'bi-square-fill'; typeIconColor = 'text-success'; } else if (item.type === 'Anime') { typeIconClass = 'bi-circle-fill'; typeIconColor = 'text-info'; } else if (item.type === 'Film') { typeIconClass = 'bi-film'; typeIconColor = 'text-primary'; } cardContentHTML += `<div class="d-flex align-items-center mb-3"> <i class="${typeIconClass} ${typeIconColor} me-2" style="font-size: 0.8rem;"></i> <small class="text-uppercase item-type-text">${typeText}</small> </div>`;
+        // Srednji Dio: S/E Inputi ILI Ocjena
+        cardContentHTML += `<div class="mt-auto">`; if ((item.type === 'Anime' || item.type === 'Serija') && !item.watched) { cardContentHTML += `<div class="se-controls d-flex align-items-center justify-content-center mb-2"> <label for="card-s-${item.id}" class="form-label mb-0 me-1 small fw-bold">S:</label> <input type="number" id="card-s-${item.id}" value="${item.season || '1'}" data-field="season" class="form-control form-control-sm se-input me-2" min="1"> <label for="card-e-${item.id}" class="form-label mb-0 me-1 small fw-bold">E:</label> <input type="number" id="card-e-${item.id}" value="${item.episode || '1'}" data-field="episode" class="form-control form-control-sm se-input me-1" min="1"> <button class="btn btn-sm btn-outline-light episode-increment-btn flex-shrink-0" title="Povećaj epizodu">+</button> </div>`; } else if (item.watched && item.rating) { cardContentHTML += `<div class="text-center mb-2 rating-display"> <span class="fw-bold">Ocjena: ${item.rating}</span> </div>`; } else { cardContentHTML += `<div class="mb-2" style="min-height: 31px;"></div>`; } cardContentHTML += `</div>`;
+        cardContentHTML += `</div>`;
+
+        cardDiv.innerHTML = cardContentHTML;
+        colDiv.appendChild(cardDiv);
+        watchlistItemsDiv.appendChild(colDiv);
+    });
+};
+
+// --- FUNKCIJE ZA AŽURIRANJE ITEM-a ---
+const incrementEpisode = (itemId) => { if (!itemId || !currentUserId) return; const item = allUserItems.find(i => i.id === itemId); if (!item || (item.type !== 'Anime' && item.type !== 'Serija')) { console.warn("Item not found or not a Series/Anime:", itemId); return; } const currentEpisode = parseInt(item.episode || '0'); const newEpisode = currentEpisode + 1; db.collection('watchlist').doc(itemId).update({ episode: newEpisode }) .then(() => { console.log(`Epizoda ažurirana na ${newEpisode} za ${itemId}`); }) .catch(e => { console.error(`Greška pri ažuriranju epizode za ${itemId}:`, e); showFeedback(`Greška pri ažuriranju epizode.`, 'danger'); }); };
+const updateItemField = (itemId, field, value) => { if (!itemId || !currentUserId || !field) return; const numericValue = parseInt(value); if (isNaN(numericValue) || numericValue < 1) { console.warn(`Neispravna vrijednost za ${field}: ${value}. Vraćam na staro.`); const item = allUserItems.find(i => i.id === itemId); const inputElement = document.getElementById(`card-${field.substring(0, 1)}-${itemId}`); if (inputElement && item) { inputElement.value = item[field] || '1'; } return; } console.log(`Ažuriram polje ${field} na ${numericValue} za ${itemId}`); const updateData = {}; updateData[field] = numericValue; db.collection('watchlist').doc(itemId).update(updateData) .then(() => { console.log(`${field} uspješno ažurirano na ${numericValue} za ${itemId}`); }) .catch(e => { console.error(`Greška pri ažuriranju ${field} za ${itemId}:`, e); showFeedback(`Greška pri ažuriranju polja ${field}.`, 'danger'); }); };
+const deleteItem = (id) => { if (!id || !currentUserId) return; db.collection('watchlist').doc(id).delete() .then(() => console.log(`Item ${id} obrisan.`)) .catch(e => console.error(`Greška pri brisanju itema ${id}:`, e)); };
+const updateItemWatchedStatus = (id, watchedStatus) => { if (!id || !currentUserId) return; const updateData = { watched: watchedStatus }; if (!watchedStatus) { updateData.rating = null; } db.collection('watchlist').doc(id).update(updateData) .then(() => console.log(`Status watched za ${id} ažuriran na ${watchedStatus}.`)) .catch(e => console.error(`Greška pri ažuriranju watched statusa za ${id}:`, e)); };
+const updateItemFavoriteStatus = (id, favoriteStatus) => { if (!id || !currentUserId) return; db.collection('watchlist').doc(id).update({ favorite: favoriteStatus }) .then(() => console.log(`Status favorite za ${id} ažuriran na ${favoriteStatus}.`)) .catch(e => console.error(`Greška pri ažuriranju favorite statusa za ${id}:`, e)); };
+const showFeedback = (msg, type = 'info') => { console.log(`FEEDBACK (${type}): ${msg}`); /* TODO: Toast */ };
+
+// --- AUTOCOMPLETE FUNKCIJE ---
+const searchAnime = async (query) => { if (!query || query.length < 3) return []; const encodedQuery = encodeURIComponent(query); const url = `https://api.jikan.moe/v4/anime?q=${encodedQuery}&sfw&limit=5`; console.log(`Jikan Search URL: ${url}`); try { const response = await fetch(url); if (!response.ok) { console.error(`Jikan API greška: ${response.status} ${response.statusText}`); if (response.status === 429) console.warn("Jikan rate limit premašen!"); return []; } const data = await response.json(); return data.data || []; } catch (error) { console.error("Greška pri dohvaćanju Jikan podataka:", error); return []; } };
+const fetchTMDbSuggestions = async (query) => { if (!TMDB_API_KEY || TMDB_API_KEY === 'TVOJ_STVARNI_API_KLJUČ_V3') { console.warn("TMDb API ključ nije postavljen."); return []; } const url = `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&language=hr-HR&include_adult=false&page=1`; console.log(`TMDb Search URL: ${url}`); try { const r = await fetch(url); if (!r.ok) { console.error(`TMDb API greška: ${r.status} ${r.statusText}`); return []; } const d = await r.json(); return d.results || []; } catch (e) { console.error("TMDb AC greška:", e); return []; } };
+const fetchAndShowSuggestions = async (q) => { if (!q || q.length < 3) { if (titleSuggestionsDiv) {titleSuggestionsDiv.innerHTML = ''; titleSuggestionsDiv.style.display = 'none';} return; } if (titleSuggestionsDiv) { titleSuggestionsDiv.innerHTML = '<div class="list-group-item text-muted small p-2">Tražim...</div>'; titleSuggestionsDiv.style.display = 'block'; } try { const [tmdbResults, jikanResults] = await Promise.all([ fetchTMDbSuggestions(q), searchAnime(q) ]); const combinedSuggestions = []; tmdbResults .filter(m => m.release_date) .slice(0, 5) .forEach(m => { combinedSuggestions.push({ idType: 'tmdbId', idValue: m.id, title: m.title, year: m.release_date.substring(0, 4), imageUrl: m.poster_path ? `${TMDB_IMAGE_BASE_URL}${POSTER_SIZE_THUMB}${m.poster_path}` : null, itemType: 'Film' }); }); jikanResults .slice(0, 5) .forEach(a => { let year = a.year || a.aired?.prop?.from?.year || null; combinedSuggestions.push({ idType: 'malId', idValue: a.mal_id, title: a.title, year: year, imageUrl: a.images?.jpg?.image_url || null, itemType: 'Anime' }); }); combinedSuggestions.sort((a, b) => a.title.localeCompare(b.title)); displaySuggestions(combinedSuggestions); } catch (error) { console.error("Greška pri dohvaćanju kombiniranih prijedloga:", error); if (titleSuggestionsDiv) { titleSuggestionsDiv.innerHTML = '<div class="list-group-item text-danger small p-2">Greška pri pretrazi.</div>'; titleSuggestionsDiv.style.display = 'block'; } } };
+const displaySuggestions = (suggestions) => { if (!titleSuggestionsDiv) return; titleSuggestionsDiv.innerHTML = ''; if (!suggestions || suggestions.length === 0) { titleSuggestionsDiv.innerHTML = '<div class="list-group-item text-muted small p-2">Nema rezultata.</div>'; titleSuggestionsDiv.style.display = 'block'; return; } suggestions.forEach(sug => { const itemElement = document.createElement('a'); itemElement.href = "#"; itemElement.className = 'list-group-item list-group-item-action suggestion-item p-2 d-flex align-items-center'; itemElement.dataset.idValue = sug.idValue; itemElement.dataset.idType = sug.idType; itemElement.dataset.title = sug.title; itemElement.dataset.itemType = sug.itemType; itemElement.dataset.imageUrl = sug.imageUrl || ''; const placeholderUrl = 'https://via.placeholder.com/40x60.png?text=N/A'; const thumbUrl = sug.imageUrl || placeholderUrl; const thumbHTML = `<img src="${thumbUrl}" alt="Thumb" class="me-2 suggestion-thumb" loading="lazy">`; const typeBadge = `<span class="badge rounded-pill ${sug.itemType === 'Film' ? 'bg-primary' : 'bg-info'} ms-1 suggestion-type-badge">${sug.itemType}</span>`; const textHTML = ` <div class="flex-grow-1" style="min-width: 0;"> <div class="d-flex w-100 justify-content-between"> <h6 class="mb-0 suggestion-title text-truncate">${sug.title}</h6> <small class="text-muted ms-1 flex-shrink-0">${sug.year ? `(${sug.year})` : ''}</small> </div> <small class="text-muted d-block">${typeBadge}</small> </div>`; itemElement.innerHTML = thumbHTML + textHTML; itemElement.addEventListener('click', (e) => { e.preventDefault(); const { idValue, idType, title, itemType, imageUrl } = e.currentTarget.dataset; console.log(`Odabrano: Tip=${itemType}, ID Tip=${idType}, ID Vrijednost=${idValue}, Naslov=${title}, Slika=${imageUrl}`); if (modalTitle) modalTitle.value = title; if (modalItemType) modalItemType.value = itemType; if (modalTmdbIdInput) modalTmdbIdInput.value = (idType === 'tmdbId' ? idValue : ''); if (modalMalIdInput) modalMalIdInput.value = (idType === 'malId' ? idValue : ''); if (modalImageUrlInput) modalImageUrlInput.value = imageUrl || ''; if (titleSuggestionsDiv) { titleSuggestionsDiv.innerHTML = ''; titleSuggestionsDiv.style.display = 'none'; } const showSE = itemType === 'Anime' || itemType === 'Serija'; if (modalSeasonFields) modalSeasonFields.style.display = showSE ? 'flex' : 'none'; if (!showSE) { if (modalSeason) modalSeason.value = '1'; if (modalEpisode) modalEpisode.value = '1'; } if (modalItemType) modalItemType.dispatchEvent(new Event('change')); }); titleSuggestionsDiv.appendChild(itemElement); }); titleSuggestionsDiv.style.display = 'block'; };
+const debouncedFetchSuggestions = debounce(fetchAndShowSuggestions, 400);
+
+// === OSTALI EVENT LISTENERI ===
+if (loginButton) loginButton.addEventListener('click', handleLogin);
+if (registerButton) registerButton.addEventListener('click', handleRegister);
+if (logoutButton) logoutButton.addEventListener('click', handleLogout);
+if (modalForm) modalForm.addEventListener('submit', handleSaveItem);
+if (themeToggleButton) themeToggleButton.addEventListener('click', toggleTheme);
+if (authForm) authForm.addEventListener('submit', (e) => { e.preventDefault(); handleLogin(); });
+// Listener za input u polje naslova (Autocomplete)
+if (modalTitle) {
+    modalTitle.addEventListener('input', (e) => {
+        const query = e.target.value;
+        if (modalTmdbIdInput) modalTmdbIdInput.value = '';
+        if (modalMalIdInput) modalMalIdInput.value = '';
+        if (modalImageUrlInput) modalImageUrlInput.value = ''; // Resetiraj i URL slike
+        debouncedFetchSuggestions(query);
+    });
+    modalTitle.addEventListener('blur', () => { setTimeout(() => { if (titleSuggestionsDiv) titleSuggestionsDiv.style.display = 'none'; }, 200); });
+    modalTitle.addEventListener('focus', (e) => { if (e.target.value.length >= 3) { debouncedFetchSuggestions(e.target.value); } });
+}
+// --- Event listeneri za akcije na karticama ---
+if (watchlistItemsDiv) {
+    watchlistItemsDiv.addEventListener('click', (e) => { const target = e.target; const card = target.closest('.watchlist-card-v2'); if (!card) return; const itemId = card.dataset.id; if (!itemId) return; if (target.closest('.delete-card-btn')) { const title = card.querySelector('.card-title')?.textContent || 'ovaj unos'; if (confirm(`Jeste li sigurni da želite obrisati "${title}"?`)) { deleteItem(itemId); } } else if (target.closest('.watched-toggle-card-btn')) { const watchedButton = target.closest('.watched-toggle-card-btn'); const currentWatchedStatus = watchedButton.dataset.watched === 'true'; updateItemWatchedStatus(itemId, !currentWatchedStatus); } else if (target.closest('.favorite-toggle-card-icon')) { const isCurrentlyFavorite = target.classList.contains('bi-star-fill'); updateItemFavoriteStatus(itemId, !isCurrentlyFavorite); } else if (target.closest('.episode-increment-btn')) { incrementEpisode(itemId); } });
+    watchlistItemsDiv.addEventListener('change', (e) => { const target = e.target; if (target.matches('.se-input')) { const card = target.closest('.watchlist-card-v2'); if (!card) return; const itemId = card.dataset.id; const field = target.dataset.field; const newValue = target.value; if (itemId && field) { updateItemField(itemId, field, newValue); } } });
+}
+// Listener za promjenu filtera
+if (filterControls) { filterControls.addEventListener('change', (e) => { if (e.target.type === 'radio' && e.target.name === 'listFilter') { currentFilter = e.target.value; applyCurrentFilter(); } }); }
+
+// --- Load & Service Worker ---
+loadTheme();
+if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js').then(r => console.log('SW OK:', r.scope)).catch(e => console.error('SW Err:', e)); }); } else { console.log("SW?"); }
+
+// ==========================================================================
+// KRAJ script.js KODA
+// ==========================================================================

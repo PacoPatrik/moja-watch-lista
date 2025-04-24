@@ -1,68 +1,237 @@
-    /* Globalna tranzicija */
-    body, .btn, .list-group-item, .form-control, .form-select, .modal-content, .card {
-        transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, opacity 0.3s ease, box-shadow 0.15s ease-in-out;
-    }
+/* Globalna tranzicija */
+body, .btn, .list-group-item, .form-control, .form-select, .modal-content {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, opacity 0.3s ease, box-shadow 0.15s ease-in-out;
+}
+body { min-height: 100vh; }
 
-    /* Osnovni stilovi tijela */
-    body { min-height: 100vh; }
+/* Auth sekcija */
+#auth-section { background: linear-gradient(rgba(var(--bs-body-bg-rgb), 0.8), rgba(var(--bs-body-bg-rgb), 1)), url('https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8bW92aWV8fHx8fHwxNjE4MjYwMDI0&ixlib=rb-1.2.1&q=80&utm_campaign=api-credit&utm_medium=referral&utm_source=unsplash_source&w=1080') no-repeat center center; background-size: cover; }
+.auth-container { max-width: 450px; width: 90%; background-color: rgba(var(--bs-body-bg-rgb), 0.9); backdrop-filter: blur(5px); border: 1px solid rgba(var(--bs-emphasis-color-rgb), 0.1); }
+.site-title { font-weight: 300; }
+.auth-instructions small { color: var(--bs-secondary-color); }
 
-    /* Stilovi za Auth sekciju */
-    #auth-section {
-        background: linear-gradient(rgba(var(--bs-body-bg-rgb), 0.8), rgba(var(--bs-body-bg-rgb), 1)), url('https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8bW92aWV8fHx8fHwxNjE4MjYwMDI0&ixlib=rb-1.2.1&q=80&utm_campaign=api-credit&utm_medium=referral&utm_source=unsplash_source&w=1080') no-repeat center center;
-        background-size: cover;
-    }
-    .auth-container {
-        max-width: 450px; width: 90%;
-        background-color: rgba(var(--bs-body-bg-rgb), 0.9);
-        backdrop-filter: blur(5px);
-        border: 1px solid rgba(var(--bs-emphasis-color-rgb), 0.1);
-    }
-    .site-title { font-weight: 300; }
-    .auth-instructions small { color: var(--bs-secondary-color); }
+/* Kontejner sadržaja */
+#content-section .container { max-width: 960px; }
 
-    /* Prilagodba kontejnera za sadržaj */
-    #content-section .container { max-width: 1140px; }
+/* Stil za prikaz itema u listi (list-group) */
+#watchlist-items.list-group .list-group-item {
+    border-width: 1px;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center; /* Vertikalno poravnanje */
+}
+#watchlist-items .list-group-item .badge { vertical-align: middle; font-size: 0.75em; }
+#watchlist-items .list-group-item .item-title { font-weight: 500; margin-left: 0.25rem; }
+#watchlist-items .list-group-item .item-details { margin-top: 0.25rem; }
 
-    /* Lista - Grid */
-    #watchlist-items.row { /* Osiguraj da se primjenjuje kad je grid */ }
+/* Stil za Poster/Placeholder u listi */
+.list-item-poster, .list-item-poster-placeholder {
+    width: 50px;
+    height: 75px;
+    object-fit: cover;
+    border-radius: 3px;
+    background-color: var(--bs-tertiary-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.list-item-poster-placeholder i { font-size: 1.8rem; }
 
-    /* Stil kartice */
-    .card { border: 1px solid var(--bs-border-color-translucent); }
-    .card-title { font-size: 1.1rem; display: inline-block; }
-    .card-body { padding: 1rem; }
+/* Stil za pogledane iteme */
+.item-watched { opacity: 0.7; background-color: var(--bs-secondary-bg-subtle); }
+.item-watched .item-title { text-decoration: line-through; font-weight: normal !important; }
 
-    /* Stil za pogledane kartice */
-    .item-watched { opacity: 0.7; }
-    .item-watched .item-title { text-decoration: line-through; font-weight: normal !important; }
-    .item-watched .season-episode-controls { display: none !important; }
+/* Gumbi s ikonama u listi */
+.item-actions .btn { padding: 0.2rem 0.4rem; line-height: 1; transition: transform 0.15s ease-out, opacity 0.15s ease-out; }
+.item-actions .btn:hover { opacity: 1; transform: scale(1.15); }
+.item-actions .btn i { vertical-align: -0.125em; }
 
-    /* Gumbi s ikonama unutar kartice */
-    .item-actions .btn { padding: 0.2rem 0.4rem; line-height: 1; transition: transform 0.15s ease-out, opacity 0.15s ease-out; }
-    .item-actions .btn:hover { opacity: 1; transform: scale(1.15); }
-    .item-actions .btn i { vertical-align: -0.125em; }
+/* Ikona zvjezdice */
+.favorite-icon-placeholder i { font-size: 1.1rem; transition: color 0.2s ease, transform 0.2s ease; }
+.favorite-icon-placeholder i:hover { transform: scale(1.2); color: var(--bs-warning); }
 
-    /* Inputi za ocjenu, sezonu, epizodu */
-    .rating-input, .season-input, .episode-input { text-align: center; }
-    .rating-input::placeholder { font-size: 0.8em; }
-    .save-rating-btn i, .save-progress-btn i { font-size: 0.9em; }
+/* Kontrole za filtere */
+#filter-controls .btn { font-size: 0.85rem; padding: 0.3rem 0.6rem; } #filter-controls .btn i { vertical-align: -0.1em; }
+.theme-button { width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; }
 
-    /* Ikona zvjezdice */
-    .favorite-icon-placeholder i { font-size: 1.1rem; transition: color 0.2s ease, transform 0.2s ease; }
-    .favorite-icon-placeholder i:hover { transform: scale(1.2); color: var(--bs-warning); }
+/* Stil za listu prijedloga (Autocomplete) */
+#title-suggestions { border: 1px solid var(--bs-border-color-translucent); border-top: none; border-radius: 0 0 var(--bs-border-radius) var(--bs-border-radius); background-color: var(--bs-body-bg); max-height: 250px; overflow-y: auto; box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15); }
+#title-suggestions .suggestion-item { cursor: pointer; font-size: 0.9rem; }
+#title-suggestions .suggestion-item h6 { font-size: 1rem; margin-bottom: 0 !important; }
+#title-suggestions .suggestion-item small { font-size: 0.8rem; }
+#title-suggestions:empty { display: none; }
+/* Stil za thumbnail u autocomplete */
+.suggestion-thumb { width: 40px; height: 60px; object-fit: cover; border-radius: 3px; background-color: var(--bs-secondary-bg); flex-shrink: 0; }
 
-    /* Kontrole za filtere */
-    #filter-controls .btn { font-size: 0.85rem; padding: 0.3rem 0.6rem; }
-    #filter-controls .btn i { vertical-align: -0.1em; }
 
-    /* Gumb za promjenu teme */
-    .theme-button { width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; }
+/* Dark Mode stilovi */
+[data-bs-theme="dark"] .auth-container { border-color: rgba(255, 255, 255, 0.15); }
+[data-bs-theme="dark"] .item-watched { opacity: 0.65; }
+[data-bs-theme="dark"] .item-watched .item-title { text-decoration-color: rgba(var(--bs-light-rgb), 0.5); }
+[data-bs-theme="dark"] .badge.bg-secondary { background-color: var(--bs-secondary-bg-subtle) !important; color: var(--bs-secondary-text-emphasis) !important; border: 1px solid var(--bs-secondary-border-subtle); }
+[data-bs-theme="dark"] #title-suggestions { border-color: var(--bs-border-color); }
+[data-bs-theme="dark"] .list-item-poster-placeholder { background-color: var(--bs-secondary-bg-subtle); }
+[data-bs-theme="dark"] .suggestion-thumb { background-color: var(--bs-tertiary-bg); }
 
-    /* Dark Mode stilovi */
-    [data-bs-theme="dark"] .auth-container { border-color: rgba(255, 255, 255, 0.15); }
-    [data-bs-theme="dark"] .item-watched { opacity: 0.65; }
-    [data-bs-theme="dark"] .item-watched .item-title { text-decoration-color: rgba(var(--bs-light-rgb), 0.5); }
-    [data-bs-theme="dark"] .badge.bg-info { background-color: var(--bs-info-bg-subtle) !important; color: var(--bs-info-text-emphasis) !important; border: 1px solid var(--bs-info-border-subtle); }
 
-    /* Sakrij strelice na number inputima */
-    input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-    input[type=number] { -moz-appearance: textfield; }
+/* Sakrij strelice na number inputima */
+input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+input[type=number] { -moz-appearance: textfield; }
+
+/* === CARD VIEW V2 STYLES (Prema slici) === */
+
+.watchlist-card-v2 {
+    position: relative; /* Potrebno za pseudo-element overlay */
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Suptilni obrub */
+    border-radius: 0.375rem; /* Bootstrap default radius */
+    overflow: hidden; /* Da se overlay ne prelijeva */
+    min-height: 180px; /* Minimalna visina kartice */
+    background-color: #343a40; /* Tamna fallback pozadina */
+    /* Stilovi za pozadinsku sliku postavljeni inline JS-om */
+    background-size: cover;
+    background-position: center;
+    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+}
+
+.watchlist-card-v2:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.3);
+}
+
+/* Overlay za pozadinsku sliku (pseudo-element) */
+.watchlist-card-v2::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0; /* Ispod sadržaja */
+    pointer-events: none; /* Da ne ometa klikove */
+    transition: background-color 0.3s ease, backdrop-filter 0.3s ease;
+}
+
+/* Stilovi overlay-a definirani data-atributom */
+.watchlist-card-v2[data-overlay="card-overlay-dark"]::before {
+     background-color: rgba(0, 0, 0, 0.6); /* Tamni poluprozirni overlay */
+     backdrop-filter: none;
+}
+.watchlist-card-v2[data-overlay="card-overlay-blur"]::before {
+     background-color: rgba(0, 0, 0, 0.4); /* Malo svjetliji overlay s blur efektom */
+     backdrop-filter: blur(5px); /* Blur efekt */
+     -webkit-backdrop-filter: blur(5px); /* Za Safari */
+}
+
+
+/* Sadržaj kartice (iznad overlay-a) */
+.watchlist-card-v2 .card-body-content {
+    position: relative; /* Da bude iznad ::before elementa */
+    z-index: 1;
+}
+
+/* Naslov */
+.watchlist-card-v2 .card-title {
+    font-weight: 600; /* Malo deblji naslov */
+    color: #fff;
+}
+
+/* Tekst tipa itema */
+.watchlist-card-v2 .item-type-text {
+   color: rgba(255, 255, 255, 0.7); /* Svjetlo siva */
+   font-size: 0.75rem;
+}
+
+/* Gumbi u gornjem desnom kutu */
+.watchlist-card-v2 .card-actions-top .btn {
+    color: rgba(255, 255, 255, 0.8); /* Default boja ikona */
+    padding: 0.1rem; /* Smanji padding */
+}
+.watchlist-card-v2 .card-actions-top .btn:hover i {
+    opacity: 1;
+    transform: scale(1.15);
+}
+.watchlist-card-v2 .card-actions-top .bi-check-circle-fill { color: #198754; } /* Zelena za pogledano */
+.watchlist-card-v2 .card-actions-top .bi-circle { color: rgba(255, 255, 255, 0.6); } /* Siva za nepogledano */
+.watchlist-card-v2 .card-actions-top .bi-trash3-fill { color: #dc3545; } /* Crvena za brisanje */
+
+/* Zvjezdica za favorite */
+.watchlist-card-v2 .favorite-icon-placeholder i {
+    color: rgba(255, 255, 255, 0.6); /* Default siva */
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+.watchlist-card-v2 .favorite-icon-placeholder i.bi-star-fill {
+    color: #ffc107; /* Žuta */
+}
+.watchlist-card-v2 .favorite-icon-placeholder:hover i {
+    transform: scale(1.2);
+    color: #ffc107 !important; /* Uvijek žuta na hover */
+}
+
+
+/* Kontrole za Sezonu / Epizodu */
+.se-controls {
+    gap: 0.25rem; /* Mali razmak između elemenata */
+}
+.se-controls .form-label {
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 0;
+    font-size: 0.85em;
+}
+.se-controls .se-input {
+    width: 55px; /* Fiksna širina kao na slici */
+    background-color: rgba(0, 0, 0, 0.3); /* Tamnija pozadina inputa */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    text-align: center;
+    padding: 0.2rem 0.3rem; /* Manji padding */
+    -moz-appearance: textfield; /* Sakrij strelice */
+}
+.se-controls .se-input::-webkit-outer-spin-button,
+.se-controls .se-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.se-controls .episode-increment-btn {
+    padding: 0.1rem 0.4rem; /* Manji padding */
+    font-size: 0.9rem;
+    line-height: 1.2;
+    border-color: rgba(255, 255, 255, 0.5);
+    color: rgba(255, 255, 255, 0.8);
+}
+.se-controls .episode-increment-btn:hover {
+     background-color: rgba(255, 255, 255, 0.2);
+     border-color: rgba(255, 255, 255, 0.8);
+     color: #fff;
+}
+
+/* Prikaz Ocjene */
+.rating-display span {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.9em;
+}
+
+/* Specifični stilovi za pogledane iteme (ako treba dodatno) */
+.watchlist-card-v2.item-watched .card-title {
+    /* Možda ne treba line-through ako je ikona dovoljna */
+    /* text-decoration: line-through;
+    text-decoration-color: rgba(255, 255, 255, 0.5); */
+    font-weight: normal; /* Tanji font za pogledane */
+    opacity: 0.8;
+}
+
+/* Brisanje starih/neiskorištenih stilova (opcionalno, ali preporučeno) */
+#watchlist-items.list-group .list-group-item,
+.list-item-poster, .list-item-poster-placeholder,
+.watchlist-card /* Stara klasa */ {
+    display: none !important; /* Sakrij elemente sa starim stilovima */
+}
+
+
+/* === END CARD VIEW V2 STYLES === */
+/* Stil za oznaku tipa u autocomplete prijedlozima */
+.suggestion-type-badge {
+    font-size: 0.65em; /* Manji font */
+    vertical-align: middle; /* Poravnaj s tekstom */
+    opacity: 0.8;
+}
