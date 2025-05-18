@@ -1,70 +1,69 @@
-/* Globalna tranzicija */
-body, .btn, .list-group-item, .form-control, .form-select, .modal-content {
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, opacity 0.3s ease, box-shadow 0.15s ease-in-out;
-}
-body { min-height: 100vh; }
+/* ========================================= */
+/* === REDIZAJN WATCHLIST - STYLE.CSS === */
+/* ========================================= */
 
-/* Auth sekcija */
-#auth-section { background: linear-gradient(rgba(var(--bs-body-bg-rgb), 0.8), rgba(var(--bs-body-bg-rgb), 1)), url('https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8bW92aWV8fHx8fHwxNjE4MjYwMDI0&ixlib=rb-1.2.1&q=80&utm_campaign=api-credit&utm_medium=referral&utm_source=unsplash_source&w=1080') no-repeat center center; background-size: cover; }
-.auth-container { max-width: 450px; width: 90%; background-color: rgba(var(--bs-body-bg-rgb), 0.9); backdrop-filter: blur(5px); border: 1px solid rgba(var(--bs-emphasis-color-rgb), 0.1); }
-.site-title { font-weight: 300; }
-.auth-instructions small { color: var(--bs-secondary-color); }
+/* === OSNOVNI STILOVI I FONT === */
+:root { --bs-primary-rgb: 52, 106, 220; --bs-secondary-rgb: 108, 117, 125; --app-bg-dark: #1a1d24; --app-surface-dark: #23272f; --app-border-dark: rgba(255, 255, 255, 0.1); --app-text-muted-dark: rgba(255, 255, 255, 0.5); --app-bg-light: #f8f9fa; --app-surface-light: #ffffff; --app-border-light: rgba(0, 0, 0, 0.1); --app-text-muted-light: rgba(0, 0, 0, 0.5); }
+body { font-family: 'Poppins', sans-serif; transition: background-color 0.3s ease, color 0.3s ease; background-color: var(--app-bg-light); color: var(--bs-body-color); }
+[data-bs-theme="dark"] body { background-color: var(--app-bg-dark); }
+.app-container { display: flex; flex-direction: column; min-height: 100vh; }
 
-/* Ljepljiva pretraga */
-.sticky-top { z-index: 1020; }
-.sticky-top.bg-body { background-color: var(--bs-body-bg) !important; }
+/* === AUTH SEKCIJA REDIZAJN === */
+.auth-wrapper { display: flex; flex-grow: 1; align-items: center; justify-content: center; padding: 1.5rem; background: linear-gradient(135deg, rgba(var(--bs-primary-rgb), 0.1), rgba(var(--bs-secondary-rgb), 0.05)), var(--app-bg-light); }
+[data-bs-theme="dark"] .auth-wrapper { background: linear-gradient(135deg, rgba(var(--bs-primary-rgb), 0.2), rgba(0,0,0, 0.3)), var(--app-bg-dark); }
+.auth-container-redesign { background-color: var(--app-surface-light); border: 1px solid var(--app-border-light); max-width: 450px; width: 100%; box-shadow: 0 0.5rem 1.5rem rgba(0,0,0,0.07); }
+[data-bs-theme="dark"] .auth-container-redesign { background-color: var(--app-surface-dark); border-color: var(--app-border-dark); box-shadow: 0 0.5rem 1.5rem rgba(0,0,0,0.2); }
+.site-title-redesign { color: var(--bs-primary); }
+
+/* === HEADER REDIZAJN === */
+.app-header { background-color: var(--app-surface-light); border-bottom: 1px solid var(--app-border-light); padding: 0.75rem 0; }
+[data-bs-theme="dark"] .app-header { background-color: var(--app-surface-dark); border-bottom: 1px solid var(--app-border-dark); }
+.site-title-header { font-weight: 600; }
+.app-header .btn-outline-light { --bs-btn-color: var(--bs-emphasis-color); --bs-btn-border-color: var(--bs-border-color); --bs-btn-hover-color: var(--bs-body-bg); --bs-btn-hover-bg: var(--bs-emphasis-color); --bs-btn-hover-border-color: var(--bs-emphasis-color); }
+
+/* === KONTROLE ZA FILTRIRANJE I PRETRAGU REDIZAJN === */
+#filter-controls .btn-check:checked+.btn-outline-secondary { background-color: var(--bs-primary); border-color: var(--bs-primary); color: #fff; }
+[data-bs-theme="dark"] #filter-controls .btn-outline-secondary { --bs-btn-color: var(--app-text-muted-dark); --bs-btn-border-color: var(--app-border-dark); --bs-btn-hover-color: #fff; --bs-btn-hover-bg: var(--bs-primary); --bs-btn-hover-border-color: var(--bs-primary); }
+[data-bs-theme="dark"] #filter-controls .btn-check:checked+.btn-outline-secondary { color: #fff; }
+
+/* === NOVI STIL KARTICA === */
+.watchlist-item-card { background-color: var(--app-surface-light); border: 1px solid var(--app-border-light); border-radius: 0.5rem; overflow: hidden; transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; cursor: pointer; }
+[data-bs-theme="dark"] .watchlist-item-card { background-color: var(--app-surface-dark); border-color: var(--app-border-dark); }
+.watchlist-item-card:hover { transform: translateY(-5px); box-shadow: 0 0.75rem 1.5rem rgba(0,0,0,0.1); }
+[data-bs-theme="dark"] .watchlist-item-card:hover { box-shadow: 0 0.75rem 1.5rem rgba(0,0,0,0.25); }
+.card-poster-wrapper { position: relative; padding-top: 150%; background-color: var(--bs-tertiary-bg); overflow: hidden; }
+.card-poster-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
+.watchlist-item-card:hover .card-poster-img { transform: scale(1.05); }
+.card-poster-placeholder-icon { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 3rem; color: var(--bs-secondary-color); opacity: 0.5; }
+.card-item-type-badge { position: absolute; top: 0.75rem; left: 0.75rem; font-size: 0.7rem; padding: 0.25em 0.6em; z-index: 2; }
+.card-item-actions { position: absolute; top: 0.5rem; right: 0.5rem; z-index: 2; display: flex; gap: 0.3rem; }
+.card-item-actions .btn { background-color: rgba(var(--bs-body-bg-rgb), 0.7); backdrop-filter: blur(3px); border: none; color: var(--bs-emphasis-color); padding: 0.3rem 0.5rem; }
+.card-item-actions .btn:hover { background-color: rgba(var(--bs-body-bg-rgb), 0.9); }
+.watchlist-item-card .card-body { padding: 0.75rem; }
+.card-item-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 0.25rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; min-height: calc(2 * 1.2em * 0.95); }
+.card-item-details { font-size: 0.8rem; color: var(--bs-secondary-color); }
+[data-bs-theme="dark"] .card-item-details { color: var(--app-text-muted-dark); }
+.watchlist-item-card.item-watched-card { opacity: 0.7; }
+.watchlist-item-card.item-watched-card .card-item-title { text-decoration: line-through; text-decoration-color: var(--bs-secondary-color); font-weight: 400; }
+[data-bs-theme="dark"] .watchlist-item-card.item-watched-card .card-item-title { text-decoration-color: var(--app-text-muted-dark); }
+
+/* === STILOVI ZA S/E INPUTE NA KARTICI (REDIZAJN) === */
+.se-controls-card { gap: 0.25rem; }
+.se-controls-card .form-label-sm { font-size: 0.75em; margin-bottom: 0; color: var(--bs-secondary-color); }
+[data-bs-theme="dark"] .se-controls-card .form-label-sm { color: var(--app-text-muted-dark); }
+.se-controls-card .se-input-card { width: 50px; background-color: rgba(var(--bs-body-color-rgb), 0.05); border: 1px solid var(--app-border-light); color: var(--bs-body-color); text-align: center; padding: 0.15rem 0.25rem; font-size: 0.8rem; }
+[data-bs-theme="dark"] .se-controls-card .se-input-card { background-color: rgba(var(--bs-light-rgb), 0.1); border-color: var(--app-border-dark); }
+.se-controls-card .episode-increment-card-btn { padding: 0.1rem 0.35rem; font-size: 0.8rem; line-height: 1.2; }
+[data-bs-theme="dark"] .se-controls-card .btn-outline-light { --bs-btn-color: var(--bs-light); --bs-btn-border-color: var(--bs-light-rgb); --bs-btn-hover-color: var(--bs-dark); --bs-btn-hover-bg: var(--bs-light); }
 
 
-/* Stil za listu prijedloga (Autocomplete) */
-#title-suggestions { border: 1px solid var(--bs-border-color-translucent); border-top: none; border-radius: 0 0 var(--bs-border-radius) var(--bs-border-radius); background-color: var(--bs-body-bg); max-height: 250px; overflow-y: auto; box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15); z-index: 1056; }
-#title-suggestions .suggestion-item { cursor: pointer; font-size: 0.9rem; }
-#title-suggestions .suggestion-item h6 { font-size: 1rem; margin-bottom: 0 !important; }
-#title-suggestions .suggestion-item small { font-size: 0.8rem; }
-#title-suggestions:empty { display: none; }
-.suggestion-thumb { width: 40px; height: 60px; object-fit: cover; border-radius: 3px; background-color: var(--bs-secondary-bg); flex-shrink: 0; }
-.suggestion-type-badge { font-size: 0.65em; vertical-align: middle; opacity: 0.8; }
+/* MODAL ZA DETALJE */
+#itemDetailsModal .modal-content { border-radius: 0.5rem; }
+#itemDetailsModalBody .detail-poster { width: 150px; height: auto; object-fit: cover; border-radius: 0.375rem; box-shadow: 0 0.25rem 0.75rem rgba(0,0,0,0.1); }
+[data-bs-theme="dark"] #itemDetailsModalBody .detail-poster { box-shadow: 0 0.25rem 0.75rem rgba(0,0,0,0.3); }
+#itemDetailsModalBody .item-description { font-size: 0.9rem; line-height: 1.6; max-height: 150px; overflow-y: auto; }
 
-
-/* Kontrole za filtere */
-#filter-controls .btn { font-size: 0.85rem; padding: 0.3rem 0.6rem; } #filter-controls .btn i { vertical-align: -0.1em; }
-.theme-button { width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; }
-
-/* === CARD VIEW V2 STYLES === */
-.watchlist-card-v2 { position: relative; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 0.375rem; overflow: hidden; min-height: 180px; background-color: #343a40; background-size: cover; background-position: center; transition: transform 0.2s ease-out, box-shadow 0.2s ease-out; }
-.watchlist-card-v2:hover { transform: translateY(-3px); box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.3); }
-.watchlist-card-v2::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; transition: background-color 0.3s ease, backdrop-filter 0.3s ease; }
-.watchlist-card-v2[data-overlay="card-overlay-dark"]::before { background-color: rgba(0, 0, 0, 0.6); backdrop-filter: none; }
-.watchlist-card-v2[data-overlay="card-overlay-blur"]::before { background-color: rgba(0, 0, 0, 0.4); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); }
-.watchlist-card-v2 .card-body-content { position: relative; z-index: 1; }
-.watchlist-card-v2 .card-title { font-weight: 600; color: #fff; }
-.watchlist-card-v2 .item-type-text { color: rgba(255, 255, 255, 0.7); font-size: 0.75rem; }
-.watchlist-card-v2 .card-actions-top .btn { color: rgba(255, 255, 255, 0.8); padding: 0.1rem; }
-.watchlist-card-v2 .card-actions-top .btn:hover i { opacity: 1; transform: scale(1.15); }
-.watchlist-card-v2 .card-actions-top .bi-check-circle-fill { color: #198754; }
-.watchlist-card-v2 .card-actions-top .bi-circle { color: rgba(255, 255, 255, 0.6); }
-.watchlist-card-v2 .card-actions-top .bi-trash3-fill { color: #dc3545; }
-.watchlist-card-v2 .favorite-icon-placeholder i { color: rgba(255, 255, 255, 0.6); transition: color 0.2s ease, transform 0.2s ease; }
-.watchlist-card-v2 .favorite-icon-placeholder i.bi-star-fill { color: #ffc107; }
-.watchlist-card-v2 .favorite-icon-placeholder:hover i { transform: scale(1.2); color: #ffc107 !important; }
-.se-controls { gap: 0.25rem; }
-.se-controls .form-label { color: rgba(255, 255, 255, 0.8); margin-bottom: 0; font-size: 0.85em; }
-.se-controls .se-input { width: 55px; background-color: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.2); color: #fff; text-align: center; padding: 0.2rem 0.3rem; -moz-appearance: textfield; }
-.se-controls .se-input::-webkit-outer-spin-button, .se-controls .se-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-.se-controls .episode-increment-btn { padding: 0.1rem 0.4rem; font-size: 0.9rem; line-height: 1.2; border-color: rgba(255, 255, 255, 0.5); color: rgba(255, 255, 255, 0.8); }
-.se-controls .episode-increment-btn:hover { background-color: rgba(255, 255, 255, 0.2); border-color: rgba(255, 255, 255, 0.8); color: #fff; }
-.rating-display span { color: rgba(255, 255, 255, 0.9); font-size: 0.9em; }
-.watchlist-card-v2.item-watched .card-title { font-weight: normal; opacity: 0.8; }
-
-/* Dark Mode stilovi */
-[data-bs-theme="dark"] .auth-container { border-color: rgba(255, 255, 255, 0.15); }
-[data-bs-theme="dark"] .badge.bg-secondary { background-color: var(--bs-secondary-bg-subtle) !important; color: var(--bs-secondary-text-emphasis) !important; border: 1px solid var(--bs-secondary-border-subtle); }
-[data-bs-theme="dark"] #title-suggestions { border-color: var(--bs-border-color); }
-[data-bs-theme="dark"] .suggestion-thumb { background-color: var(--bs-tertiary-bg); }
-
-/* Sakrij strelice na number inputima globalno */
-input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-input[type=number] { -moz-appearance: textfield; }
-
-/* Brisanje starih/neiskorištenih stilova */
-#watchlist-items.list-group .list-group-item, .list-item-poster, .list-item-poster-placeholder, .watchlist-card { display: none !important; }
-/* === END CARD VIEW V2 STYLES === */
+/* Općenite tranzicije i animacije */
+.btn, .form-control, .form-select, .list-group-item, .modal-content { transition: all 0.2s ease-in-out; }
+#filter-controls .btn { transition: background-color 0.2s ease-out, color 0.2s ease-out, border-color 0.2s ease-out; }
+input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; } input[type=number] { -moz-appearance: textfield; }

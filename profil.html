@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="hr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#212529">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="/icon-192.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="style.css">
+    <title>Moj Profil - Watch Lista</title>
+</head>
+<body>
+    <div class="container-fluid vh-100 d-flex flex-column p-0">
+
+        <!-- Poruka ako korisnik nije prijavljen -->
+        <div id="auth-required-message" class="flex-grow-1 d-flex align-items-center justify-content-center d-none p-5 text-center">
+             <div>
+                 <h2 class="text-danger mb-3"><i class="bi bi-exclamation-triangle-fill me-2"></i>Pristup Odbijen</h2>
+                 <p class="lead">Morate biti prijavljeni da biste vidjeli ovu stranicu.</p>
+                 <a href="index.html" class="btn btn-primary mt-3"><i class="bi bi-box-arrow-in-right me-2"></i>Idi na Prijavu</a>
+             </div>
+        </div>
+
+        <!-- Glavni sadržaj stranice - prikazuje se samo ako je korisnik prijavljen -->
+        <div id="profile-content" class="d-none flex-grow-1 d-flex flex-column">
+            <div class="container pt-4 pb-5 flex-grow-1">
+                <header class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom flex-wrap gap-2">
+                    <h1 class="h4 mb-0 text-truncate"> <i class="bi bi-person-circle me-2"></i>Moj Profil </h1>
+                    <div class="d-flex align-items-center ms-auto">
+                         <a href="index.html" class="btn btn-outline-secondary btn-sm me-2"> <i class="bi bi-arrow-left-circle me-1"></i>Natrag na Listu </a>
+                        <button type="button" class="btn btn-outline-secondary btn-sm me-2 rounded-circle p-1 theme-button" id="theme-toggle-button-profile" title="Promijeni temu"> <i class="bi bi-moon-stars-fill"></i> </button>
+                        <button type="button" class="btn btn-danger btn-sm" id="logoutButton-profile"> <i class="bi bi-box-arrow-right me-1"></i>Odjava </button>
+                    </div>
+                </header>
+
+                <main>
+                    <div class="row gy-4">
+                        <!-- Lijeva Kolona: Osnovne Info i Akcije -->
+                        <div class="col-lg-4">
+                             <div class="card shadow-sm mb-4">
+                                 <div class="card-body text-center">
+                                     <i class="bi bi-person-circle display-1 text-secondary mb-3"></i>
+                                     <h5 class="card-title mb-1">Email:</h5>
+                                     <p class="card-text text-muted" id="userEmail-profile">Učitavanje...</p>
+                                     <hr>
+                                     <button type="button" class="btn btn-outline-warning btn-sm mb-2 w-100" id="changePasswordButton"> <i class="bi bi-key-fill me-1"></i> Promijeni Lozinku </button>
+                                     <button type="button" class="btn btn-outline-danger btn-sm w-100" id="deleteAccountButton"> <i class="bi bi-trash3-fill me-1"></i> Obriši Račun </button>
+                                 </div>
+                             </div>
+                        </div>
+                        <!-- Desna Kolona: Statistika i Povijest -->
+                        <div class="col-lg-8">
+                            <h2 class="mb-3">Statistika Liste</h2>
+                            <div class="card shadow-sm mb-4">
+                                <div class="card-body">
+                                    <div id="stats-loading" class="text-center text-muted"> <div class="spinner-border spinner-border-sm me-2" role="status"> <span class="visually-hidden">Loading...</span> </div> Učitavam statistiku... </div>
+                                    <div id="stats-display" class="d-none"> <div class="row g-3"> <div class="col-md-6"> <div class="stat-item p-3 border rounded bg-body-tertiary"> <i class="bi bi-list-ol fs-3 text-primary mb-2"></i> <h6 class="text-muted mb-1">Ukupno Unosa</h6> <p class="fs-4 fw-bold mb-0" id="stat-total">-</p> </div> </div> <div class="col-md-6"> <div class="stat-item p-3 border rounded bg-body-tertiary"> <i class="bi bi-check2-circle fs-3 text-success mb-2"></i> <h6 class="text-muted mb-1">Pogledano</h6> <p class="fs-4 fw-bold mb-0" id="stat-watched">-</p> </div> </div> <div class="col-md-6"> <div class="stat-item p-3 border rounded bg-body-tertiary"> <i class="bi bi-eye fs-3 text-info mb-2"></i> <h6 class="text-muted mb-1">Trenutno Gledam</h6> <p class="fs-4 fw-bold mb-0" id="stat-watching">-</p> </div> </div> <div class="col-md-6"> <div class="stat-item p-3 border rounded bg-body-tertiary"> <i class="bi bi-star-fill fs-3 text-warning mb-2"></i> <h6 class="text-muted mb-1">Omiljenih</h6> <p class="fs-4 fw-bold mb-0" id="stat-favorites">-</p> </div> </div> <div class="col-md-6"> <div class="stat-item p-3 border rounded bg-body-tertiary"> <i class="bi bi-bar-chart-line-fill fs-3 text-secondary mb-2"></i> <h6 class="text-muted mb-1">Prosječna Ocjena</h6> <p class="fs-4 fw-bold mb-0" id="stat-avg-rating">-</p> </div> </div> <div class="col-md-6"> <div class="stat-item p-3 border rounded bg-body-tertiary"> <i class="bi bi-tags-fill fs-3 text-muted mb-2"></i> <h6 class="text-muted mb-1">Broj po Tipu</h6> <p class="mb-0 small" id="stat-by-type"> </p> </div> </div> <div class="col-12"> <div class="stat-item p-3 border rounded bg-body-tertiary"> <i class="bi bi-trophy-fill fs-3 text-info-emphasis mb-2"></i> <h6 class="text-muted mb-1">Najčešći Tip</h6> <p class="fs-4 fw-bold mb-0" id="stat-most-frequent-type">-</p> </div> </div> </div> </div>
+                                </div>
+                            </div>
+
+                             <!-- SEKCIJA ZA POVIJEST -->
+                            <h2 class="mb-3">Povijest Aktivnosti</h2>
+                            <div class="card shadow-sm">
+                                 <div class="card-body">
+                                     <div id="activity-log-loading" class="text-center text-muted">
+                                         <div class="spinner-border spinner-border-sm me-2" role="status">
+                                             <span class="visually-hidden">Loading...</span>
+                                         </div>
+                                         Učitavam povijest...
+                                     </div>
+                                     <ul class="list-group list-group-flush" id="activity-log-list">
+                                         <!-- Stavke povijesti će se dodati ovdje -->
+                                         <li class="list-group-item text-muted text-center d-none" id="no-activity-log">Nema zabilježenih aktivnosti.</li>
+                                     </ul>
+                                 </div>
+                            </div>
+                             <!-- KRAJ SEKCIJE ZA POVIJEST -->
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+    <!-- Skripte -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <script src="profile_script.js"></script>
+</body>
+</html>
