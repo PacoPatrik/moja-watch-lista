@@ -1,69 +1,399 @@
 /* ========================================= */
-/* === REDIZAJN WATCHLIST - STYLE.CSS === */
+/* === ULTIMATE WATCHLIST REDESIGN V2.0 === */
 /* ========================================= */
 
-/* === OSNOVNI STILOVI I FONT === */
-:root { --bs-primary-rgb: 52, 106, 220; --bs-secondary-rgb: 108, 117, 125; --app-bg-dark: #1a1d24; --app-surface-dark: #23272f; --app-border-dark: rgba(255, 255, 255, 0.1); --app-text-muted-dark: rgba(255, 255, 255, 0.5); --app-bg-light: #f8f9fa; --app-surface-light: #ffffff; --app-border-light: rgba(0, 0, 0, 0.1); --app-text-muted-light: rgba(0, 0, 0, 0.5); }
-body { font-family: 'Poppins', sans-serif; transition: background-color 0.3s ease, color 0.3s ease; background-color: var(--app-bg-light); color: var(--bs-body-color); }
-[data-bs-theme="dark"] body { background-color: var(--app-bg-dark); }
-.app-container { display: flex; flex-direction: column; min-height: 100vh; }
+/* --- Varijable Boja i Osnovni Stilovi --- */
+:root {
+    --app-bg-dark: #10111A;
+    --app-surface-dark: #191A23;
+    --app-glass-bg: rgba(26, 27, 38, 0.6);
+    --app-border: rgba(255, 255, 255, 0.08);
+    --app-text-primary: #EAEAEA;
+    --app-text-secondary: #9A9DA8;
+    --app-primary-gradient: linear-gradient(135deg, #8A2BE2 0%, #4A00E0 100%);
+    --app-primary-color: #6c2bd8;
 
-/* === AUTH SEKCIJA REDIZAJN === */
-.auth-wrapper { display: flex; flex-grow: 1; align-items: center; justify-content: center; padding: 1.5rem; background: linear-gradient(135deg, rgba(var(--bs-primary-rgb), 0.1), rgba(var(--bs-secondary-rgb), 0.05)), var(--app-bg-light); }
-[data-bs-theme="dark"] .auth-wrapper { background: linear-gradient(135deg, rgba(var(--bs-primary-rgb), 0.2), rgba(0,0,0, 0.3)), var(--app-bg-dark); }
-.auth-container-redesign { background-color: var(--app-surface-light); border: 1px solid var(--app-border-light); max-width: 450px; width: 100%; box-shadow: 0 0.5rem 1.5rem rgba(0,0,0,0.07); }
-[data-bs-theme="dark"] .auth-container-redesign { background-color: var(--app-surface-dark); border-color: var(--app-border-dark); box-shadow: 0 0.5rem 1.5rem rgba(0,0,0,0.2); }
-.site-title-redesign { color: var(--bs-primary); }
+    --app-bg-light: #F0F2F5;
+    --app-surface-light: #FFFFFF;
+    --app-glass-bg-light: rgba(255, 255, 255, 0.65);
+    --app-border-light: rgba(0, 0, 0, 0.1);
+    --app-text-primary-light: #1C1E21;
+    --app-text-secondary-light: #65676B;
+}
 
-/* === HEADER REDIZAJN === */
-.app-header { background-color: var(--app-surface-light); border-bottom: 1px solid var(--app-border-light); padding: 0.75rem 0; }
-[data-bs-theme="dark"] .app-header { background-color: var(--app-surface-dark); border-bottom: 1px solid var(--app-border-dark); }
-.site-title-header { font-weight: 600; }
-.app-header .btn-outline-light { --bs-btn-color: var(--bs-emphasis-color); --bs-btn-border-color: var(--bs-border-color); --bs-btn-hover-color: var(--bs-body-bg); --bs-btn-hover-bg: var(--bs-emphasis-color); --bs-btn-hover-border-color: var(--bs-emphasis-color); }
+body {
+    font-family: 'Inter', sans-serif;
+    transition: background-color 0.4s ease, color 0.4s ease;
+    background-color: var(--app-bg-light);
+    color: var(--app-text-primary-light);
+}
 
-/* === KONTROLE ZA FILTRIRANJE I PRETRAGU REDIZAJN === */
-#filter-controls .btn-check:checked+.btn-outline-secondary { background-color: var(--bs-primary); border-color: var(--bs-primary); color: #fff; }
-[data-bs-theme="dark"] #filter-controls .btn-outline-secondary { --bs-btn-color: var(--app-text-muted-dark); --bs-btn-border-color: var(--app-border-dark); --bs-btn-hover-color: #fff; --bs-btn-hover-bg: var(--bs-primary); --bs-btn-hover-border-color: var(--bs-primary); }
-[data-bs-theme="dark"] #filter-controls .btn-check:checked+.btn-outline-secondary { color: #fff; }
+[data-bs-theme="dark"] body {
+    background-color: var(--app-bg-dark);
+    color: var(--app-text-primary);
+}
 
-/* === NOVI STIL KARTICA === */
-.watchlist-item-card { background-color: var(--app-surface-light); border: 1px solid var(--app-border-light); border-radius: 0.5rem; overflow: hidden; transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; cursor: pointer; }
-[data-bs-theme="dark"] .watchlist-item-card { background-color: var(--app-surface-dark); border-color: var(--app-border-dark); }
-.watchlist-item-card:hover { transform: translateY(-5px); box-shadow: 0 0.75rem 1.5rem rgba(0,0,0,0.1); }
-[data-bs-theme="dark"] .watchlist-item-card:hover { box-shadow: 0 0.75rem 1.5rem rgba(0,0,0,0.25); }
-.card-poster-wrapper { position: relative; padding-top: 150%; background-color: var(--bs-tertiary-bg); overflow: hidden; }
-.card-poster-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
-.watchlist-item-card:hover .card-poster-img { transform: scale(1.05); }
-.card-poster-placeholder-icon { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 3rem; color: var(--bs-secondary-color); opacity: 0.5; }
-.card-item-type-badge { position: absolute; top: 0.75rem; left: 0.75rem; font-size: 0.7rem; padding: 0.25em 0.6em; z-index: 2; }
-.card-item-actions { position: absolute; top: 0.5rem; right: 0.5rem; z-index: 2; display: flex; gap: 0.3rem; }
-.card-item-actions .btn { background-color: rgba(var(--bs-body-bg-rgb), 0.7); backdrop-filter: blur(3px); border: none; color: var(--bs-emphasis-color); padding: 0.3rem 0.5rem; }
-.card-item-actions .btn:hover { background-color: rgba(var(--bs-body-bg-rgb), 0.9); }
-.watchlist-item-card .card-body { padding: 0.75rem; }
-.card-item-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 0.25rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; min-height: calc(2 * 1.2em * 0.95); }
-.card-item-details { font-size: 0.8rem; color: var(--bs-secondary-color); }
-[data-bs-theme="dark"] .card-item-details { color: var(--app-text-muted-dark); }
-.watchlist-item-card.item-watched-card { opacity: 0.7; }
-.watchlist-item-card.item-watched-card .card-item-title { text-decoration: line-through; text-decoration-color: var(--bs-secondary-color); font-weight: 400; }
-[data-bs-theme="dark"] .watchlist-item-card.item-watched-card .card-item-title { text-decoration-color: var(--app-text-muted-dark); }
+.app-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
 
-/* === STILOVI ZA S/E INPUTE NA KARTICI (REDIZAJN) === */
-.se-controls-card { gap: 0.25rem; }
-.se-controls-card .form-label-sm { font-size: 0.75em; margin-bottom: 0; color: var(--bs-secondary-color); }
-[data-bs-theme="dark"] .se-controls-card .form-label-sm { color: var(--app-text-muted-dark); }
-.se-controls-card .se-input-card { width: 50px; background-color: rgba(var(--bs-body-color-rgb), 0.05); border: 1px solid var(--app-border-light); color: var(--bs-body-color); text-align: center; padding: 0.15rem 0.25rem; font-size: 0.8rem; }
-[data-bs-theme="dark"] .se-controls-card .se-input-card { background-color: rgba(var(--bs-light-rgb), 0.1); border-color: var(--app-border-dark); }
-.se-controls-card .episode-increment-card-btn { padding: 0.1rem 0.35rem; font-size: 0.8rem; line-height: 1.2; }
-[data-bs-theme="dark"] .se-controls-card .btn-outline-light { --bs-btn-color: var(--bs-light); --bs-btn-border-color: var(--bs-light-rgb); --bs-btn-hover-color: var(--bs-dark); --bs-btn-hover-bg: var(--bs-light); }
+/* --- Efekt Zaleđenog Stakla (Glassmorphism) --- */
+.glass-effect {
+    background: var(--app-glass-bg-light);
+    -webkit-backdrop-filter: blur(15px);
+    backdrop-filter: blur(15px);
+    border: 1px solid var(--app-border-light);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+}
+[data-bs-theme="dark"] .glass-effect {
+    background: var(--app-glass-bg);
+    border-color: var(--app-border);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+}
+
+/* --- Glavni Elementi (Gumbi, Forme) --- */
+.btn-primary {
+    background: var(--app-primary-gradient);
+    border: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(138, 43, 226, 0.2);
+}
+.btn-primary:hover, .btn-primary:focus {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(138, 43, 226, 0.3);
+}
+.form-control, .form-select {
+    background-color: var(--app-surface-light);
+    border: 1px solid var(--app-border-light);
+    color: var(--app-text-primary-light);
+    transition: all 0.3s ease;
+}
+.form-control:focus, .form-select:focus {
+    border-color: var(--app-primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(138, 43, 226, 0.25);
+    background-color: var(--app-surface-light);
+}
+[data-bs-theme="dark"] .form-control, [data-bs-theme="dark"] .form-select {
+    background-color: var(--app-surface-dark);
+    border-color: var(--app-border);
+    color: var(--app-text-primary);
+}
+[data-bs-theme="dark"] .form-control:focus, [data-bs-theme="dark"] .form-select:focus {
+    background-color: var(--app-surface-dark);
+}
 
 
-/* MODAL ZA DETALJE */
-#itemDetailsModal .modal-content { border-radius: 0.5rem; }
-#itemDetailsModalBody .detail-poster { width: 150px; height: auto; object-fit: cover; border-radius: 0.375rem; box-shadow: 0 0.25rem 0.75rem rgba(0,0,0,0.1); }
-[data-bs-theme="dark"] #itemDetailsModalBody .detail-poster { box-shadow: 0 0.25rem 0.75rem rgba(0,0,0,0.3); }
-#itemDetailsModalBody .item-description { font-size: 0.9rem; line-height: 1.6; max-height: 150px; overflow-y: auto; }
+/* --- AUTH SEKCIJA REDIZAJN --- */
+.auth-wrapper {
+    display: flex;
+    flex-grow: 1;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    background-color: var(--app-bg-light);
+    background-image:
+        radial-gradient(at 0% 0%, hsla(253,100%,70%,0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 99%, hsla(219,100%,60%,0.15) 0px, transparent 50%);
+}
+[data-bs-theme="dark"] .auth-wrapper {
+    background-color: var(--app-bg-dark);
+}
+.auth-container-redesign {
+    max-width: 420px;
+    width: 100%;
+    padding: 2.5rem !important;
+    border-radius: 1rem;
+}
+.site-title-redesign {
+    font-weight: 700;
+    background: var(--app-primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+[data-bs-theme="dark"] .text-muted {
+    color: var(--app-text-secondary) !important;
+}
 
-/* Općenite tranzicije i animacije */
-.btn, .form-control, .form-select, .list-group-item, .modal-content { transition: all 0.2s ease-in-out; }
-#filter-controls .btn { transition: background-color 0.2s ease-out, color 0.2s ease-out, border-color 0.2s ease-out; }
-input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; } input[type=number] { -moz-appearance: textfield; }
+/* --- HEADER REDIZAJN --- */
+.app-header {
+    position: sticky;
+    top: 0;
+    z-index: 1050;
+    margin: 1rem 1rem 0; /* Stvara "floating" efekt */
+    border-radius: 0.75rem;
+    transition: all 0.3s ease;
+}
+.site-title-header {
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+.theme-button {
+    width: 32px; height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.app-header .btn {
+    border-color: transparent;
+    transition: all 0.2s ease;
+}
+.app-header .btn:hover {
+    background-color: rgba(255,255,255,0.1);
+}
+[data-bs-theme="light"] .app-header .btn:hover {
+    background-color: rgba(0,0,0,0.05);
+}
+
+/* --- KONTROLE I FILTRI --- */
+#filter-controls {
+    position: relative;
+    background-color: var(--app-surface-light);
+    padding: 0.3rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--app-border-light);
+}
+[data-bs-theme="dark"] #filter-controls {
+    background-color: var(--app-surface-dark);
+    border-color: var(--app-border);
+}
+#filter-controls .btn-check + .btn-outline-secondary {
+    border: none;
+    color: var(--app-text-secondary-light);
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+[data-bs-theme="dark"] #filter-controls .btn-check + .btn-outline-secondary {
+    color: var(--app-text-secondary);
+}
+#filter-controls .btn-check:checked + .btn-outline-secondary {
+    background: var(--app-primary-gradient);
+    color: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* --- NOVI STIL KARTICA V2 --- */
+.watchlist-item-card-v2 {
+    position: relative;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background-color: var(--app-surface-dark);
+    aspect-ratio: 2 / 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.watchlist-item-card-v2:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    z-index: 10;
+}
+.card-v2-poster {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+.card-v2-content-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 3rem 1rem 1rem;
+    background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 50%, transparent 100%);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+    color: white;
+}
+.watchlist-item-card-v2:hover .card-v2-content-overlay {
+    opacity: 1;
+    transform: translateY(0);
+}
+.card-v2-title {
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.card-v2-details {
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+.card-v2-actions {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    opacity: 0;
+    transform: translateX(10px);
+    transition: all 0.3s ease;
+    z-index: 5;
+}
+.watchlist-item-card-v2:hover .card-v2-actions {
+    opacity: 1;
+    transform: translateX(0);
+}
+.card-v2-actions .btn {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background-color: rgba(30,30,40,0.7);
+    backdrop-filter: blur(5px);
+    color: white;
+    border: none;
+    font-size: 1rem;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.card-v2-actions .btn:hover {
+    background-color: rgba(50,50,60,0.9);
+}
+.card-v2-badge {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    background: rgba(30,30,40,0.7);
+    backdrop-filter: blur(5px);
+    padding: 0.3em 0.8em;
+}
+.card-v2-watched-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(16, 17, 26, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 4rem;
+    transition: all 0.3s ease;
+    pointer-events: none; /* Dopusti hover na karticu ispod */
+}
+.watchlist-item-card-v2.item-watched-card:hover .card-v2-poster {
+    filter: grayscale(80%) brightness(0.7);
+}
+
+/* --- HERO SEKCIJA KAD JE LISTA PRAZNA --- */
+.hero-section {
+    text-align: center;
+    padding: 5rem 1rem;
+    background-color: var(--app-surface-light);
+    border: 1px dashed var(--app-border-light);
+    border-radius: 1rem;
+    margin-top: 2rem;
+}
+[data-bs-theme="dark"] .hero-section {
+    background-color: var(--app-surface-dark);
+    border-color: var(--app-border);
+}
+.hero-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    background: var(--app-primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* --- MODALI REDIZAJN --- */
+.modal-content {
+    border-radius: 1rem;
+    border: none;
+}
+.modal-header, .modal-footer {
+    border: none;
+}
+#itemDetailsModal .modal-dialog {
+    max-width: 800px;
+}
+#itemDetailsModalBody .detail-poster {
+    width: 100%;
+    max-width: 250px;
+    height: auto;
+    object-fit: cover;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+/* --- PROFIL STRANICA --- */
+#profile-content .card {
+    background-color: var(--app-surface-light);
+    border: 1px solid var(--app-border-light);
+    border-radius: 1rem;
+}
+[data-bs-theme="dark"] #profile-content .card {
+    background-color: var(--app-surface-dark);
+    border-color: var(--app-border);
+}
+.stat-item {
+    background-color: var(--app-bg-light) !important;
+    border: 1px solid var(--app-border-light) !important;
+    transition: all 0.3s ease;
+}
+.stat-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+[data-bs-theme="dark"] .stat-item {
+    background-color: var(--app-bg-dark) !important;
+    border-color: var(--app-border) !important;
+}
+[data-bs-theme="dark"] .stat-item:hover {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+.stat-item .fs-3 {
+    background: var(--app-primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+/* Progress bar za statistiku */
+.progress {
+    height: 8px;
+    background-color: var(--app-bg-dark);
+    border-radius: 8px;
+}
+.progress-bar {
+    background: var(--app-primary-gradient);
+}
+/* Chart za tipove */
+.chart-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+}
+.chart-bar-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+.chart-bar {
+    height: 10px;
+    border-radius: 5px;
+    background: var(--app-primary-gradient);
+    transition: width 0.5s ease-in-out;
+}
+.chart-label {
+    width: 60px;
+    flex-shrink: 0;
+    text-align: right;
+    color: var(--app-text-secondary);
+}
+
+/* Scrollbar stilovi */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--app-bg-dark); }
+::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #555; }
